@@ -25,6 +25,7 @@ import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
+import it.cnr.igg.helper.RestResult;
 
 @Path("")
 public class Sample extends ResultBuilder {
@@ -69,6 +70,7 @@ public class Sample extends ResultBuilder {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response insert() {
+		Gson gson = new Gson();
 		try {
 			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
@@ -79,14 +81,14 @@ public class Sample extends ResultBuilder {
 				buffer.append(line);
 			}
 			final String data = buffer.toString();
-			Gson gson = new Gson();
+			
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
 			ArrayList<SampleBean> beans = toSampleBean(payload);
 			SampleQuery sampleQuery = new SampleQuery();
 			sampleQuery.insert(beans);
-			return ok();
+			return ok(gson.toJson(RestResult.resultOk("")));
 		} catch (Exception x) {
-			return error(x.getMessage());
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
 
@@ -114,7 +116,7 @@ public class Sample extends ResultBuilder {
 					boolean isIsotope = (boolean) isotope;
 					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
 				} catch (Exception x) {
-					x.printStackTrace();
+					// x.printStackTrace();
 				}
 			}
 			beans.add(sb);
