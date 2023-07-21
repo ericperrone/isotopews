@@ -32,6 +32,56 @@ public class Sample extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 
+	@Path("/query-samples")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySamplesOpt() {
+		return ok("");
+	}
+
+	@Path("/query-samples")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySamples() {
+		try {
+			SampleQuery sampleQuery = new SampleQuery();
+			ArrayList<SampleBean> beans = sampleQuery.querySamples(null);
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+/*	
+	@Path("/get-samples")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSamplesOpt() {
+		return ok("");
+	}
+
+	@Path("/get-samples")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getSamples() {
+		try {
+			SampleQuery sampleQuery = new SampleQuery();
+			ArrayList<SampleBean> beans = sampleQuery.getSampleList(null);
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
 	@Path("/get-sample")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -56,7 +106,7 @@ public class Sample extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-
+*/
 	@Path("/insert-sample")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -85,7 +135,7 @@ public class Sample extends ResultBuilder {
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
 			ArrayList<SampleBean> beans = toSampleBean(payload);
 			SampleQuery sampleQuery = new SampleQuery();
-			sampleQuery.insert(beans);
+			sampleQuery.insertSamples(beans);
 			return ok(gson.toJson(RestResult.resultOk("")));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
