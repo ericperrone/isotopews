@@ -1,6 +1,8 @@
 package it.cnr.igg.rest;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -13,6 +15,11 @@ import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.sheetx.xls.Xls;
+
+class ContentHelper {
+	public ArrayList<String> sheets;
+	public String key;
+}
 
 @Path("")
 public class ContentDir extends ResultBuilder {
@@ -35,13 +42,18 @@ public class ContentDir extends ResultBuilder {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response processFile(@QueryParam("fileName") String name) {
-		try {
+		try {			
 			if (name.toLowerCase().endsWith(".xlsx")) {
-				Global.xls = new Xls(Global.dataFolder + Global.fileSeparator + name);
-				ArrayList<String> sheets = Global.xls.getSheets();
+				// Global.xls = new Xls(Global.dataFolder + Global.fileSeparator + name);
+				String key = Global.openXls(name);
+				Xls xls = Global.getXls(key);
+				ArrayList<String> sheets = xls.getSheets();
+				ContentHelper ch = new ContentHelper();
+				ch.key = key;
+				ch.sheets = sheets;
 				String json = "";
 				Gson gson = new Gson();
-				json = gson.toJson(sheets);
+				json = gson.toJson(ch);
 				return ok(json);
 			} else {
 				throw new Exception("Unsupported file type");
@@ -54,10 +66,10 @@ public class ContentDir extends ResultBuilder {
 	@Path("/get-content-xls")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getContent(@QueryParam("sheet") String sheet) {
+	public Response getContent(@QueryParam("sheet") String sheet, @QueryParam("key") String key) {
 		try {
-			if (Global.xls != null) {
-				ArrayList<ArrayList<String>> content = Global.xls.getContent(sheet);
+			if (Global.pool != null) {
+				ArrayList<ArrayList<String>> content = Global.getXls(key).getContent(sheet);
 				String json = "";
 				Gson gson = new Gson();
 				json = gson.toJson(content);
@@ -65,6 +77,25 @@ public class ContentDir extends ResultBuilder {
 			} else {
 				throw new Exception("Invalid request");
 			}
+		} catch (Exception x) {
+			return error(x.getMessage());
+		}
+	}
+	
+	@Path("/close-contentdir")
+	@OPTIONS
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response closeContentDir() {
+		return ok();
+	}
+	
+	@Path("/close-contentdir")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response closeContentDir(@QueryParam("key") String key) {
+		try {
+			Global.releasXls(key);
+			return ok();
 		} catch (Exception x) {
 			return error(x.getMessage());
 		}
