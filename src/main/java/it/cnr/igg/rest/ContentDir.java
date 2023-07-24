@@ -14,7 +14,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.ResultBuilder;
-import it.cnr.igg.sheetx.xls.Xls;
+import it.cnr.igg.sheetx.xlsx.Xlsx;
 
 class ContentHelper {
 	public ArrayList<String> sheets;
@@ -46,7 +46,7 @@ public class ContentDir extends ResultBuilder {
 			if (name.toLowerCase().endsWith(".xlsx")) {
 				// Global.xls = new Xls(Global.dataFolder + Global.fileSeparator + name);
 				String key = Global.openXls(name);
-				Xls xls = Global.getXls(key);
+				Xlsx xls = Global.getXls(key);
 				ArrayList<String> sheets = xls.getSheets();
 				ContentHelper ch = new ContentHelper();
 				ch.key = key;

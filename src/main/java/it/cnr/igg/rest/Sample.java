@@ -20,11 +20,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.ResultBuilder;
-import it.cnr.igg.sheetx.xls.Xls;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
+import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.helper.RestResult;
 
 @Path("")

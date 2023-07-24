@@ -4,18 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.File;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import it.cnr.igg.sheetx.exceptions.SheetxException;
-import it.cnr.igg.sheetx.xls.Xls;
 import it.cnr.igg.sheetx.helper.HexFilter;
+import it.cnr.igg.sheetx.xlsx.Xlsx;
+import it.cnr.igg.sheetx.xlsx.Xsl;
 
 public class Global {
 	public static String fileSeparator = File.separator;
 	public static String receivedPayLoad = null;
 	public static String dataFolder = fileSeparator + "dev";
-	public static Xls xls = null;
-	public static HashMap<String, Xls> pool = null;
+	public static Xlsx xls = null;
+	public static HashMap<String, Xlsx> pool = null;
 
 	public static ArrayList<String> contentDir() {
 		ArrayList<String> dir = new ArrayList<String>();
@@ -40,14 +39,14 @@ public class Global {
 			byte[] b = md.digest(inKey.getBytes());
 			String key = HexFilter.toHexFromBytes(b).toString();
 			if (pool == null) {
-				pool = new HashMap<String, Xls>();
+				pool = new HashMap<String, Xlsx>();
 			}
 
 			if (pool.containsKey(key)) {
 				return key;
 			}
 
-			pool.put(key, new Xls(Global.dataFolder + Global.fileSeparator + fileName));
+			pool.put(key, new Xlsx(Global.dataFolder + Global.fileSeparator + fileName));
 			return key;
 			// return pool.get(key);
 		} catch (Exception e) {
@@ -55,28 +54,25 @@ public class Global {
 		}
 	}
 	
-//	public static void main(String[] args) {
-//		String in = "Pippo.xlsx";
-//		String in2 = "2Pippo.xlsx";
-//		MessageDigest md;
-//		try {
-//			md = MessageDigest.getInstance("MD5");
-//			// md.update(in.getBytes());
-//			byte[] b = md.digest(in.getBytes());
-//			StringBuilder sb = HexFilter.toHexFromBytes(b);
-//			String d = sb.toString();
-//			System.out.println(d);
-//			b = md.digest(in2.getBytes());
-//			d = b.toString();
-//			System.out.println(d);
-//		} catch (NoSuchAlgorithmException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//	}
+	public static void main(String[] args) {
+		String fileName = "earth-ref-table1.xls";
+		try {
+			Xsl xls = new Xsl(Global.dataFolder + Global.fileSeparator + fileName);
+			System.out.println("Aperto");
+			ArrayList<String> sheets = xls.getSheets();
+			for (String s : sheets) {
+				System.out.println("" + s);
+			}
+			ArrayList<ArrayList<String>> content = xls.getContent(sheets.get(0));
+			System.out.println("Letto contenuto");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
-	public static Xls getXls(String key) throws SheetxException {
+	public static Xlsx getXls(String key) throws SheetxException {
 		try {
 			if (pool == null || !pool.containsKey(key)) {
 				throw new Exception("Invalid key");
