@@ -6,6 +6,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import it.cnr.igg.sheetx.exceptions.SheetxException;
 import it.cnr.igg.sheetx.helper.HexFilter;
+import it.cnr.igg.sheetx.xlsx.Sheetx;
 import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.sheetx.xlsx.Xsl;
 
@@ -14,7 +15,7 @@ public class Global {
 	public static String receivedPayLoad = null;
 	public static String dataFolder = fileSeparator + "dev";
 	public static Xlsx xls = null;
-	public static HashMap<String, Xlsx> pool = null;
+	public static HashMap<String, Sheetx> pool = null;
 
 	public static ArrayList<String> contentDir() {
 		ArrayList<String> dir = new ArrayList<String>();
@@ -25,7 +26,7 @@ public class Global {
 				continue;
 			String name = entry.getName();
 			String nameToLower = name.toLowerCase();
-			if (nameToLower.endsWith(".xlsx") || nameToLower.endsWith(".csv")) {
+			if (nameToLower.endsWith(".xlsx") || nameToLower.endsWith(".csv") || nameToLower.endsWith(".xls")) {
 				dir.add(name);
 			}
 		}
@@ -39,7 +40,29 @@ public class Global {
 			byte[] b = md.digest(inKey.getBytes());
 			String key = HexFilter.toHexFromBytes(b).toString();
 			if (pool == null) {
-				pool = new HashMap<String, Xlsx>();
+				pool = new HashMap<String, Sheetx>();
+			}
+
+			if (pool.containsKey(key)) {
+				return key;
+			}
+
+			pool.put(key, new Xsl(Global.dataFolder + Global.fileSeparator + fileName));
+			return key;
+			// return pool.get(key);
+		} catch (Exception e) {
+			throw new SheetxException(e);
+		}
+	}
+
+	public static String openXlsx(String fileName) throws SheetxException {
+		try {
+			String inKey = fileName + "-" + System.currentTimeMillis();
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] b = md.digest(inKey.getBytes());
+			String key = HexFilter.toHexFromBytes(b).toString();
+			if (pool == null) {
+				pool = new HashMap<String, Sheetx>();
 			}
 
 			if (pool.containsKey(key)) {
@@ -53,7 +76,7 @@ public class Global {
 			throw new SheetxException(e);
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		String fileName = "earth-ref-table1.xls";
 		try {
@@ -69,17 +92,30 @@ public class Global {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
-	public static Xlsx getXls(String key) throws SheetxException {
+	public static Xlsx getXlsx(String key) throws SheetxException {
 		try {
 			if (pool == null || !pool.containsKey(key)) {
 				throw new Exception("Invalid key");
 			}
 
-			return pool.get(key);
-			
+			return (Xlsx) pool.get(key);
+
+		} catch (Exception e) {
+			throw new SheetxException(e);
+		}
+	}
+
+	public static Xsl getXls(String key) throws SheetxException {
+		try {
+			if (pool == null || !pool.containsKey(key)) {
+				throw new Exception("Invalid key");
+			}
+
+			return (Xsl) pool.get(key);
+
 		} catch (Exception e) {
 			throw new SheetxException(e);
 		}

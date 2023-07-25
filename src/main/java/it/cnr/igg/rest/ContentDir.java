@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.sheetx.xlsx.Xlsx;
+import it.cnr.igg.sheetx.xlsx.Xsl;
 
 class ContentHelper {
 	public ArrayList<String> sheets;
@@ -42,22 +43,30 @@ public class ContentDir extends ResultBuilder {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response processFile(@QueryParam("fileName") String name) {
+		String key = null;
+		ArrayList<String> sheets = null;
 		try {			
 			if (name.toLowerCase().endsWith(".xlsx")) {
 				// Global.xls = new Xls(Global.dataFolder + Global.fileSeparator + name);
-				String key = Global.openXls(name);
-				Xlsx xls = Global.getXls(key);
-				ArrayList<String> sheets = xls.getSheets();
-				ContentHelper ch = new ContentHelper();
-				ch.key = key;
-				ch.sheets = sheets;
-				String json = "";
-				Gson gson = new Gson();
-				json = gson.toJson(ch);
-				return ok(json);
+				key = Global.openXlsx(name);
+				Xlsx xls = Global.getXlsx(key);
+				sheets = xls.getSheets();
+			} else if (name.toLowerCase().endsWith(".xls")) {
+				key = Global.openXls(name);
+				Xsl xls = Global.getXls(key);
+				sheets = xls.getSheets();
 			} else {
 				throw new Exception("Unsupported file type");
 			}
+
+			ContentHelper ch = new ContentHelper();
+			ch.key = key;
+			ch.sheets = sheets;
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(ch);
+			return ok(json);
+			
 		} catch (Exception x) {
 			return error(x.getMessage());
 		}
