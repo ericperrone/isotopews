@@ -11,6 +11,7 @@ import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.sheetx.xlsx.Xsl;
 
 public class Global {
+	public static final int POOL_MAX = 3;
 	public static String fileSeparator = File.separator;
 	public static String receivedPayLoad = null;
 	public static String dataFolder = fileSeparator + "dev";
@@ -46,7 +47,9 @@ public class Global {
 			if (pool.containsKey(key)) {
 				return key;
 			}
-
+			
+			if (pool.size() >= POOL_MAX)
+				throw new Exception("Max pool size has been reached. Please, wait and retry.");
 			pool.put(key, new Xsl(Global.dataFolder + Global.fileSeparator + fileName));
 			return key;
 			// return pool.get(key);
@@ -95,6 +98,19 @@ public class Global {
 
 	}
 
+	public static Sheetx getSheet(String key) throws SheetxException {
+		try {
+			if (pool == null || !pool.containsKey(key)) {
+				throw new Exception("Invalid key");
+			}
+
+			return pool.get(key);
+
+		} catch (Exception e) {
+			throw new SheetxException(e);
+		}
+	}
+	
 	public static Xlsx getXlsx(String key) throws SheetxException {
 		try {
 			if (pool == null || !pool.containsKey(key)) {

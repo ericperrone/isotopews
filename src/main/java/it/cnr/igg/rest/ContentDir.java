@@ -16,6 +16,7 @@ import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.sheetx.xlsx.Xsl;
+import it.cnr.igg.sheetx.xlsx.Sheetx;
 
 class ContentHelper {
 	public ArrayList<String> sheets;
@@ -78,7 +79,12 @@ public class ContentDir extends ResultBuilder {
 	public Response getContent(@QueryParam("sheet") String sheet, @QueryParam("key") String key) {
 		try {
 			if (Global.pool != null) {
-				ArrayList<ArrayList<String>> content = Global.getXls(key).getContent(sheet);
+				ArrayList<ArrayList<String>> content = null;
+				Sheetx sheetx = Global.getSheet(key);
+				if (sheetx instanceof Xlsx)
+					content = ((Xlsx)sheetx).getContent(sheet);
+				else
+					content = ((Xsl)sheetx).getContent(sheet);
 				String json = "";
 				Gson gson = new Gson();
 				json = gson.toJson(content);
