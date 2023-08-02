@@ -2,30 +2,106 @@ package it.cnr.igg.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
+import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
+import it.cnr.igg.isotopedb.beans.ComponentBean;
+import it.cnr.igg.isotopedb.beans.SampleBean;
+import it.cnr.igg.isotopedb.beans.SampleFieldBean;
+import it.cnr.igg.isotopedb.queries.DatasetQuery;
 import it.cnr.igg.sheetx.csv.Csv;
 import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.sheetx.xlsx.Xsl;
 import it.cnr.igg.sheetx.xlsx.Sheetx;
+import it.cnr.igg.isotopedb.beans.DatasetBean;
 
 class ContentHelper {
 	public ArrayList<String> sheets;
 	public String key;
 }
 
+class MetadataInfo {
+	public String ref;
+	public String authors;
+}
+
 @Path("")
 public class ContentDir extends ResultBuilder {
+	@Context
+	private HttpServletRequest request;
+
+	@Path("/push-dataset")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response pushDatasetOpt() {
+		return ok();
+	}
+
+	@Path("/push-dataset")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response pushDataset() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			DatasetBean bean = toDataseteBean(payload);
+			DatasetQuery datasetQuery = new DatasetQuery();
+			DatasetBean newBean = datasetQuery.insertDataset(bean);
+//			SampleQuery sampleQuery = new SampleQuery();
+//			sampleQuery.insertSamples(beans);
+			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(newBean))));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+
+	private DatasetBean toDataseteBean(LinkedTreeMap payload) {
+		ArrayList<LinkedTreeMap> dataset = (ArrayList<LinkedTreeMap>) payload.get("dataset");
+		LinkedTreeMap ltm = dataset.get(0);
+		String ref = (String) ltm.get("ref");
+		String authors = (String) ltm.get("authors");
+		String fileName = (String) ltm.get("file");
+		MetadataInfo mi = new MetadataInfo();
+		mi.ref = ref;
+		mi.authors = authors;
+		Gson gson = new Gson();
+		String metadata = gson.toJson(mi);
+		DatasetBean sb = new DatasetBean();
+		sb.setFileName(fileName);
+		sb.setMetadata(metadata);
+		sb.setProcessed(false);
+		return sb;
+	}
+
 	@Path("/contentdir")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
