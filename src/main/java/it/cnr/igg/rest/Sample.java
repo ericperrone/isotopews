@@ -1,5 +1,9 @@
 package it.cnr.igg.rest;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -7,25 +11,19 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-import java.util.ArrayList;
-import it.cnr.igg.helper.Global;
+import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
+import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
-import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
-import it.cnr.igg.sheetx.xlsx.Xlsx;
-import it.cnr.igg.helper.RestResult;
 
 @Path("")
 public class Sample extends ResultBuilder {
