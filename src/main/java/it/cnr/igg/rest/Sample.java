@@ -54,57 +54,7 @@ public class Sample extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-/*	
-	@Path("/get-samples")
-	@OPTIONS
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamplesOpt() {
-		return ok("");
-	}
 
-	@Path("/get-samples")
-	@GET
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamples() {
-		try {
-			SampleQuery sampleQuery = new SampleQuery();
-			ArrayList<SampleBean> beans = sampleQuery.getSampleList(null);
-			String json = "";
-			Gson gson = new Gson();
-			json = gson.toJson(beans);
-			return ok(json);
-		} catch (Exception ex) {
-			return error(ex.getMessage());
-		}
-	}
-	
-	@Path("/get-sample")
-	@OPTIONS
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSampleOpt() {
-		return ok("");
-	}
-
-	@Path("/get-sample")
-	@GET
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSample() {
-		try {
-			SampleQuery sampleQuery = new SampleQuery();
-			ArrayList<SampleBean> beans = sampleQuery.getSamples(null);
-			String json = "";
-			Gson gson = new Gson();
-			json = gson.toJson(beans);
-			return ok(json);
-		} catch (Exception ex) {
-			return error(ex.getMessage());
-		}
-	}
-*/
 	@Path("/insert-sample")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)

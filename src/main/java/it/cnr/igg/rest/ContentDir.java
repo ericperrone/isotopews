@@ -47,7 +47,7 @@ public class ContentDir extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 
-	@Path("/push-dataset")
+	@Path("/insert-dataset")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -55,7 +55,7 @@ public class ContentDir extends ResultBuilder {
 		return ok();
 	}
 
-	@Path("/push-dataset")
+	@Path("/insert-dataset")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -85,8 +85,8 @@ public class ContentDir extends ResultBuilder {
 	}
 
 	private DatasetBean toDataseteBean(LinkedTreeMap payload) {
-		ArrayList<LinkedTreeMap> dataset = (ArrayList<LinkedTreeMap>) payload.get("dataset");
-		LinkedTreeMap ltm = dataset.get(0);
+		// ArrayList<LinkedTreeMap> dataset = (ArrayList<LinkedTreeMap>) payload.get("dataset");
+		LinkedTreeMap ltm =  (LinkedTreeMap) payload.get("dataset");
 		String ref = (String) ltm.get("ref");
 		String authors = (String) ltm.get("authors");
 		String fileName = (String) ltm.get("file");
@@ -102,6 +102,23 @@ public class ContentDir extends ResultBuilder {
 		return sb;
 	}
 
+	@Path("/get-available-dataset-list")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUnprocessedDatasets() {
+		try {
+			DatasetBean filter = new DatasetBean();
+			String json = "";
+			Gson gson = new Gson();
+			ArrayList<DatasetBean> list = (new DatasetQuery()).getDatasets(filter, true);			
+			json = gson.toJson(list);
+			return ok(json);
+		} catch (Exception x) {
+			return error(x.getMessage());
+		}
+	}
+
+	
 	@Path("/contentdir")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
