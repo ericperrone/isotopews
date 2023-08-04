@@ -76,9 +76,46 @@ public class ContentDir extends ResultBuilder {
 			DatasetBean bean = toDataseteBean(payload);
 			DatasetQuery datasetQuery = new DatasetQuery();
 			DatasetBean newBean = datasetQuery.insertDataset(bean);
-//			SampleQuery sampleQuery = new SampleQuery();
-//			sampleQuery.insertSamples(beans);
 			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(newBean))));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
+	@Path("/close-dataset")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response closeDatasetOpt() {
+		return ok();
+	}
+	
+	@Path("/close-dataset")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response closeDataset() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			LinkedTreeMap ltm =  (LinkedTreeMap) payload.get("dataset");
+			Double id = (Double)ltm.get("id");
+			DatasetBean bean = new DatasetBean();
+			bean.setId(Math.round(id));
+			bean.setProcessed(true);
+			DatasetQuery datasetQuery = new DatasetQuery();
+			datasetQuery.updateProcessed(bean);
+			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(bean))));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
