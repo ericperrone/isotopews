@@ -95,9 +95,12 @@ public class Sample extends ResultBuilder {
 		ArrayList<LinkedTreeMap> samples = (ArrayList<LinkedTreeMap>) payload.get("samples");
 		for (int i = 0; i < samples.size(); i++) {
 			LinkedTreeMap ltm = samples.get(i);
+			Long datasetId = ((Double)ltm.get("datasetId")).longValue();
 			ArrayList<LinkedTreeMap> fields = (ArrayList<LinkedTreeMap>) ltm.get("fields");
 			ArrayList<LinkedTreeMap> components = (ArrayList<LinkedTreeMap>) ltm.get("components");
 			SampleBean sb = new SampleBean();
+			if (datasetId >= 0)
+				sb.setDatasetId(datasetId);
 			sb.setFields(new ArrayList<SampleFieldBean>());
 			sb.setComponents(new ArrayList<ComponentBean>());
 			for (LinkedTreeMap s : fields) {
