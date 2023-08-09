@@ -187,7 +187,8 @@ public class ContentDir extends ResultBuilder {
 				Xsl xls = Global.getXls(key);
 				sheets = xls.getSheets();
 			} else {
-				throw new Exception("Unsupported file type");
+				// throw new Exception("Unsupported file type");
+				return getUnprocessedDatasets();
 			}
 
 			ContentHelper ch = new ContentHelper();
