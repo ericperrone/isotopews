@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -77,6 +78,28 @@ public class ContentDir extends ResultBuilder {
 			DatasetQuery datasetQuery = new DatasetQuery();
 			DatasetBean newBean = datasetQuery.insertDataset(bean);
 			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(newBean))));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
+	@Path("/delete-dataset/{id}")
+	@OPTIONS
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteDatasetOpt(@PathParam("id") String id) {
+		return ok();
+	}
+
+	
+	@Path("/delete-dataset/{id}")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteDataset(@PathParam("id") String id) {
+		Gson gson = new Gson();
+		try {
+			DatasetQuery datasetQuery = new DatasetQuery();
+			datasetQuery.deleteDataset(Long.valueOf(id));
+			return ok(gson.toJson(RestResult.resultOk("deleted")));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
