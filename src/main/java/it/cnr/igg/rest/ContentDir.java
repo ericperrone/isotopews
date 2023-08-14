@@ -227,13 +227,31 @@ public class ContentDir extends ResultBuilder {
 		}
 	}
 
+	
+	@Path("/set-separator")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getContentWithSeparator(@QueryParam("fileName") String fileName, @QueryParam("separator") String separator) {
+		char recordSeparator;
+		if (separator.toLowerCase().equals("tab"))
+			recordSeparator = '\t';
+		else 
+			recordSeparator = separator.charAt(0);
+		Csv csv = new Csv(Global.dataFolder + Global.fileSeparator + fileName, recordSeparator);
+		return getContentCsv(csv);
+	}
+	
 	@Path("/get-content-csv")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getContent(@QueryParam("fileName") String fileName) {
+		Csv csv = new Csv(Global.dataFolder + Global.fileSeparator + fileName);
+		return getContentCsv(csv);
+	}
+	
+	private Response getContentCsv(Csv csv) {
 		ArrayList<ArrayList<String>> content = null;
 		try {
-			Csv csv = new Csv(Global.dataFolder + Global.fileSeparator + fileName);
 			content = csv.getContent();
 			String json = "";
 			Gson gson = new Gson();
