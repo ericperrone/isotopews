@@ -150,6 +150,7 @@ public class ContentDir extends ResultBuilder {
 		String ref = (String) ltm.get("ref");
 		String authors = (String) ltm.get("authors");
 		String fileName = (String) ltm.get("file");
+		String year = (String) ltm.get("year");
 		MetadataInfo mi = new MetadataInfo();
 		mi.ref = ref;
 		mi.authors = authors;
@@ -158,6 +159,9 @@ public class ContentDir extends ResultBuilder {
 		DatasetBean sb = new DatasetBean();
 		sb.setFileName(fileName);
 		sb.setMetadata(metadata);
+		sb.setLink(ref);
+		sb.setAuthors(authors);
+		sb.setYear(Integer.valueOf(year));
 		sb.setProcessed(false);
 		return sb;
 	}
