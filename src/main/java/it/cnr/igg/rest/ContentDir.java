@@ -39,8 +39,7 @@ class ContentHelper {
 }
 
 class MetadataInfo {
-	public String ref;
-	public String authors;
+	public String keywords;
 }
 
 @Path("")
@@ -151,14 +150,11 @@ public class ContentDir extends ResultBuilder {
 		String authors = (String) ltm.get("authors");
 		String fileName = (String) ltm.get("file");
 		String year = (String) ltm.get("year");
-		MetadataInfo mi = new MetadataInfo();
-		mi.ref = ref;
-		mi.authors = authors;
+		String keywords = (String) ltm.get("keywords");
 		Gson gson = new Gson();
-		String metadata = gson.toJson(mi);
 		DatasetBean sb = new DatasetBean();
 		sb.setFileName(fileName);
-		sb.setMetadata(metadata);
+		sb.setMetadata(keywords);
 		sb.setLink(ref);
 		sb.setAuthors(authors);
 		sb.setYear(Integer.valueOf(year));
