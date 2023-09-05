@@ -14,7 +14,10 @@ class TableItem {
 }
 
 public class TableSampleBean {
-	private ArrayList<String> header;
+	public static String[][] equivalent = {
+			{ "sample", "sample id", "sample_id", "sample name", "sample_name" }
+	};
+	private ArrayList<String> header;	
 	private ArrayList<ArrayList<String>> body;
 	private HashMap<String, TableItem> index;
 
