@@ -71,7 +71,7 @@ public class Mixing {
 								BigDecimal.valueOf(m[1].value), 
 								w);
 						mr.mix.add(new Mix(w.doubleValue(), bValue.doubleValue()));
-						System.out.println(w + ": " + bValue);
+//						System.out.println(w + ": " + bValue);
 						w = w.add(increment);
 					}
 					
