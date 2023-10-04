@@ -52,7 +52,7 @@ public class Query extends ResultBuilder {
 		try {
 			ArrayList<SampleBean> beans = querySamples(meta, authors, ref, year);
 			TableSampleBean tsb = new TableSampleBean();
-			tsb.build(beans);
+			tsb.build(beans, true);
 			String json = "";
 			Gson gson = new Gson();
 			json = gson.toJson(tsb.getBody());

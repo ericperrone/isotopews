@@ -88,6 +88,7 @@ public class Mixing {
 		result = result.add(endMember2);
 		return result;
 		// return weightProportion * (endMember1 - endMember2) + endMember2;
+		// (peso * endmemberA1 * endmemberA2 + (1 - peso)*endmemberB1*endmemberB2) / endmemberB2
 	}
 	
 	public static void main(String[] args) {

@@ -39,8 +39,8 @@ public class TableSampleBean {
 		return index;
 	}
 
-	public void build(List<SampleBean> beans) {
-		buildHeader(beans);
+	public void build(List<SampleBean> beans, boolean typeFlag) {
+		buildHeader(beans, typeFlag);
 		body.add(header);
 		buildBody(beans);
 	}
@@ -70,7 +70,7 @@ public class TableSampleBean {
 		}
 	}
 
-	private void buildHeader(List<SampleBean> beans) {
+	private void buildHeader(List<SampleBean> beans, boolean typeFlag) {
 		int position = 0;
 		for (SampleBean s : beans) {
 			List<SampleFieldBean> fields = s.getFields();
@@ -82,7 +82,7 @@ public class TableSampleBean {
 						item.headerName = f.getFieldName();
 						index.put(f.getFieldName(), item);
 						position++;
-						header.add(f.getFieldName());
+						header.add(typeFlag == false ? f.getFieldName() : "F\\" + f.getFieldName());
 					}
 				}
 			}
@@ -98,7 +98,7 @@ public class TableSampleBean {
 							item.headerName = f.getComponent();
 							index.put(f.getComponent(), item);
 							position++;
-							header.add(f.getComponent());
+							header.add(typeFlag == false ? f.getComponent() : "C\\" + f.getComponent());
 						}
 					}
 				}
@@ -115,7 +115,7 @@ public class TableSampleBean {
 							item.headerName = f.getComponent();
 							index.put(f.getComponent(), item);
 							position++;
-							header.add(f.getComponent());
+							header.add(typeFlag == false ? f.getComponent() : "I\\" + f.getComponent());
 						}
 					}
 				}
