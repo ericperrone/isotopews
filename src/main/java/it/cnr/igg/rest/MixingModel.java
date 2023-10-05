@@ -71,14 +71,25 @@ public class MixingModel extends ResultBuilder {
 		for (int i = 0; i < data.size(); i++) {
 			LinkedTreeMap item = data.get(i);
 			String element = (String)item.get("element");
+			String increment = item.get("increment") == null ? null : "" + item.get("increment");
 			ArrayList<LinkedTreeMap> members = (ArrayList<LinkedTreeMap>)item.get("members");
 			GeoData gd = new GeoData();
 			gd.setElement(element);
+			if (increment == null) {
+				gd.setStep(0.01d);
+			} else {
+				gd.setStep(Double.valueOf(increment));
+			}
+			
 			gd.setMembers(members.size());
 			for (int j = 0; j < members.size(); j++) {
 				String member = (String)members.get(j).get("member");
-				Double value =  Double.valueOf("" + members.get(j).get("value"));
-				gd.setMember(member, value, j);
+				Double concentration =  Double.valueOf("" + members.get(j).get("concentration"));
+				Double isotope =  0d;
+				if (members.get(j).get("isotope") != null) {
+					isotope = Double.valueOf("" + members.get(j).get("isotope"));
+				}
+				gd.setMember(member, concentration, isotope, j);
 			}
 			geoData.add(gd);
 		}
