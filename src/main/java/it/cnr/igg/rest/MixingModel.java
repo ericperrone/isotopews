@@ -85,11 +85,11 @@ public class MixingModel extends ResultBuilder {
 			for (int j = 0; j < members.size(); j++) {
 				String member = (String)members.get(j).get("member");
 				Double concentration =  Double.valueOf("" + members.get(j).get("concentration"));
-				Double isotope =  0d;
-				if (members.get(j).get("isotope") != null) {
-					isotope = Double.valueOf("" + members.get(j).get("isotope"));
+				Double concentration2 =  0d;
+				if (members.get(j).get("concentration2") != null) {
+					concentration2 = Double.valueOf("" + members.get(j).get("concentration2"));
 				}
-				gd.setMember(member, concentration, isotope, j);
+				gd.setMember(member, concentration, concentration2, j);
 			}
 			geoData.add(gd);
 		}

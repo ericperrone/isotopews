@@ -59,7 +59,7 @@ public class Mixing {
 			for (GeoData gd : data) {
 				setStep(gd.getStep());
 				Member[] m = gd.getMembers();
-				if (m[0].isotope == 0d && m[1].isotope == 0d) {
+				if (m[0].concentration2 == 0d && m[1].concentration2 == 0d) {
 					applyConcentration(gd);
 				} else {
 					applyIsotope(gd);
@@ -102,10 +102,10 @@ public class Mixing {
 			BigDecimal end = BigDecimal.valueOf(endValue);
 			BigDecimal increment = BigDecimal.valueOf(step);
 			while (w.compareTo(end) <= 0) {
-				BigDecimal bValue = computeIsotope(BigDecimal.valueOf(m[0].isotope),
-						BigDecimal.valueOf(m[0].concentration),
-						BigDecimal.valueOf(m[1].isotope),
-						BigDecimal.valueOf(m[1].concentration), w);
+				BigDecimal bValue = computeIsotope(BigDecimal.valueOf(m[0].concentration),
+						BigDecimal.valueOf(m[0].concentration2),
+						BigDecimal.valueOf(m[1].concentration),
+						BigDecimal.valueOf(m[1].concentration2), w);
 				mr.mix.add(new Mix(w.doubleValue(), bValue.doubleValue()));
 				w = w.add(increment);
 			}

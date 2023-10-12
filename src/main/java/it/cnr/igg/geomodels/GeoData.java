@@ -3,18 +3,18 @@ package it.cnr.igg.geomodels;
 class Member {
 	public String member;
 	public double concentration;
-	public double isotope;
+	public double concentration2;
 	
 	public Member(String member, double concentration) {
 		this.member = member;
 		this.concentration = concentration;
-		this.isotope = 0d;
+		this.concentration2 = 0d;
 	}
 
-	public Member(String member, double concentration, double isotope) {
+	public Member(String member, double concentration, double concentration2) {
 		this.member = member;
 		this.concentration = concentration;
-		this.isotope = isotope;
+		this.concentration2 = concentration2;
 	}
 }
 
@@ -64,7 +64,7 @@ public class GeoData {
 		this.step = step;
 	}
 
-	public void setMember(String member, Double concentration, Double isotope, int index) {
-		this.members[index] = new Member(member, concentration, isotope);
+	public void setMember(String member, Double concentration, Double concentration2, int index) {
+		this.members[index] = new Member(member, concentration, concentration2);
 	}
 }
