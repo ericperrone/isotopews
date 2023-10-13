@@ -100,7 +100,7 @@ public class Query extends ResultBuilder {
 			filter.keywords = meta.split(" ");
 		}
 		if (authors != null) {
-			filter.authors = authors.split(",");
+			filter.authors = authors.split(";");
 		}
 		if (ref != null) {
 			filter.ref = ref;
