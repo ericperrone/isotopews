@@ -103,13 +103,12 @@ public class Mixing {
 			BigDecimal increment = BigDecimal.valueOf(step);
 			while (w.compareTo(end) <= 0) {
 				BigDecimal bValue = computeIsotope(BigDecimal.valueOf(m[0].concentration),
-						BigDecimal.valueOf(m[0].concentration2),
-						BigDecimal.valueOf(m[1].concentration),
+						BigDecimal.valueOf(m[0].concentration2), BigDecimal.valueOf(m[1].concentration),
 						BigDecimal.valueOf(m[1].concentration2), w);
 				mr.mix.add(new Mix(w.doubleValue(), bValue.doubleValue()));
 				w = w.add(increment);
 			}
-			
+
 			result.add(mr);
 		}
 	}
@@ -134,9 +133,100 @@ public class Mixing {
 		result = result.multiply(f1);
 		result = result.add(c2);
 		return result;
-		// return weightProportion * (endMember1 - endMember2) + endMember2;
-		// (peso * endmemberA1 * endmemberA2 + (1 - peso)*endmemberB1*endmemberB2) /
-		// endmemberB2
 	}
 
+	public void compute() {
+		if (data != null) {
+			result = new ArrayList<MixingResult>();
+			for (GeoData gd : data) {
+				setStep(gd.getStep());
+				compute(gd);
+			}
+		}
+	}
+
+	public void compute(GeoData gd) {
+		ArrayList<BigDecimal> c1 = new ArrayList<BigDecimal>();
+		ArrayList<BigDecimal> c2 = new ArrayList<BigDecimal>();
+		Member[] members = gd.getMembers();
+		for (Member m : members) {
+			c1.add(BigDecimal.valueOf(m.concentration));
+			c2.add(BigDecimal.valueOf(m.concentration2));
+		}
+		ArrayList<BigDecimal> cm = new ArrayList<BigDecimal>();
+	}
+
+	public ArrayList<ArrayList<BigDecimal>> f(int size) {
+		BigDecimal start = BigDecimal.valueOf(startValue);
+		BigDecimal end = BigDecimal.valueOf(endValue);
+		ArrayList<ArrayList<BigDecimal>> w = new ArrayList<ArrayList<BigDecimal>>();
+		BigDecimal increment = BigDecimal.valueOf(step);
+		// inizializza
+		ArrayList<BigDecimal> row = new ArrayList<BigDecimal>();
+		for (int i = 0; i < size - 1; i++) {
+			row.add(start);
+		}
+		row.add(end);
+		w.add(row);
+
+		// esegue il calcolo
+		int col = size - 2;
+		while (col > 0) {
+			while (row.get(col - 1).compareTo(end) < 0) {
+
+				ArrayList<BigDecimal> previous = w.get(w.size() - 1);
+				BigDecimal sum = previous.get(0);
+				for (int i = 1; i < col; i++) {
+					sum = sum.add(previous.get(i));
+				}
+				for (int i = col + 1; i <= size - 2; i++) {
+					sum = sum.add(previous.get(i));
+				}
+				BigDecimal value = start.add(increment);
+				while (value.add(sum).compareTo(end) <= 0) {
+					row = new ArrayList<BigDecimal>();
+					for (int j = 0; j < col; j++) {
+						row.add(j, previous.get(j));
+					}
+					row.add(col, value);
+					row.add(size - 1, BigDecimal.valueOf(1).subtract(sum.add(value)));
+					w.add(row);
+					value = value.add(increment);
+				}
+
+				row = new ArrayList<BigDecimal>();
+				for (int i = 0; i < col - 1; i++) {
+					row.add(i, start);
+				}
+				row.add(col - 1, previous.get(col - 1).add(increment));
+				for (int i = col; i <= size - 2; i++) {
+					row.add(i, start);
+				}
+				row.add(end.subtract(row.get(col - 1)));
+				w.add(row);
+			}
+
+			col--;
+		}
+
+		return w;
+	}
+
+	private BigDecimal computeConcentration(ArrayList<BigDecimal> c, ArrayList<BigDecimal> f) {
+		BigDecimal cm = BigDecimal.valueOf(0d);
+		for (int i = 0; i < c.size(); i++) {
+			cm.add(c.get(i).multiply(f.get(i)));
+		}
+		return cm;
+	}
+
+	public static void main(String args[]) {
+		Member[] members = { new Member("M01", 53.06d), new Member("M02", 55.98d), new Member("M03", 55.29d) };
+		GeoData[] gd = { new GeoData("SIO2", members) };
+		Mixing mixing = new Mixing(gd);
+		mixing.setStep(0.1d);
+//		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
+		ArrayList<ArrayList<BigDecimal>> f = mixing.f(3);
+		System.out.println("end");
+	}
 }
