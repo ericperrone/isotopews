@@ -57,7 +57,7 @@ public class MixingModel extends ResultBuilder {
 			GeoData[] geoData = jsonToGeoData(payload);
 			
 			Mixing mixing = new Mixing(geoData);
-			mixing.apply();
+			mixing.compute();
 			Object result = mixing.getResult();
 			return ok(gson.toJson(result));
 		} catch (Exception x) {
@@ -70,11 +70,10 @@ public class MixingModel extends ResultBuilder {
 		ArrayList<LinkedTreeMap> data = (ArrayList<LinkedTreeMap>) payload.get("data");
 		for (int i = 0; i < data.size(); i++) {
 			LinkedTreeMap item = data.get(i);
-			String element = (String)item.get("element");
 			String increment = item.get("increment") == null ? null : "" + item.get("increment");
 			ArrayList<LinkedTreeMap> members = (ArrayList<LinkedTreeMap>)item.get("members");
 			GeoData gd = new GeoData();
-			gd.setElement(element);
+//			gd.setElement(element);
 			if (increment == null) {
 				gd.setStep(0.01d);
 			} else {
@@ -83,13 +82,14 @@ public class MixingModel extends ResultBuilder {
 			
 			gd.setMembers(members.size());
 			for (int j = 0; j < members.size(); j++) {
-				String member = (String)members.get(j).get("member");
+				String member = "" + members.get(j).get("member");
+				String element = "" + members.get(j).get("element");
 				Double concentration =  Double.valueOf("" + members.get(j).get("concentration"));
 				Double concentration2 =  0d;
 				if (members.get(j).get("concentration2") != null) {
 					concentration2 = Double.valueOf("" + members.get(j).get("concentration2"));
 				}
-				gd.setMember(member, concentration, concentration2, j);
+				gd.setMember(member, element, concentration, concentration2, j);
 			}
 			geoData.add(gd);
 		}
