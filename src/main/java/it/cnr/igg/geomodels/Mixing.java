@@ -281,7 +281,7 @@ public class Mixing {
 		return w;
 	}
 
-	private BigDecimal computeConcentration(ArrayList<BigDecimal> c, ArrayList<BigDecimal> f) {
+	public BigDecimal computeConcentration(ArrayList<BigDecimal> c, ArrayList<BigDecimal> f) {
 		BigDecimal cm = BigDecimal.valueOf(0d);
 		for (int i = 0; i < c.size(); i++) {
 			cm = cm.add(c.get(i).multiply(f.get(i)));
@@ -289,31 +289,50 @@ public class Mixing {
 		return cm;
 	}
 
-	private BigDecimal computeIsotope(ArrayList<BigDecimal> i, ArrayList<BigDecimal> c, ArrayList<BigDecimal> f) {
+	public BigDecimal computeIsotope(ArrayList<BigDecimal> i, ArrayList<BigDecimal> c, ArrayList<BigDecimal> f) {
 		BigDecimal im = BigDecimal.valueOf(0d);
 		for (int j = 0; j < c.size(); j++) {
 			BigDecimal m = c.get(j).multiply(f.get(j));
 			im = im.add(i.get(j).multiply(m));
 		}
-		BigDecimal cm = computeConcentration(c, f);		
+		BigDecimal cm = computeConcentration(c, f);
+		System.out.println("cm: " + cm.doubleValue());
 		im =  im.divide(cm, MathContext.DECIMAL64);
+		System.out.println("im: " + im.doubleValue());
 		return im;
 	}
 
 	
 	public static void main(String args[]) {
-		Member[] members = { new Member("M01", "SIO2", 53.06d), new Member("M02", "SIO2", 55.98d), new Member("M03", "SIO2", 55.29d) };
+//		Member[] members = { new Member("M01", "SIO2", 53.06d), new Member("M02", "SIO2", 55.98d), new Member("M03", "SIO2", 55.29d) };
+//
+//		GeoData geoData = new GeoData(members);
+//		geoData.setStep(0.2d);
+//		
+//		GeoData[] gd = { geoData };
+//		
+//		Mixing mixing = new Mixing(gd);
+//		mixing.setStep(0.2d);
+//		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
+//		mixing.compute();
+		Mixing mixing = new Mixing();
+		mixing.setStep(0.5d);
+		ArrayList<BigDecimal> i = new ArrayList<BigDecimal>();
+		ArrayList<BigDecimal> c = new ArrayList<BigDecimal>();
+		ArrayList<BigDecimal> f = new ArrayList<BigDecimal>();
+		
+		i.add(BigDecimal.valueOf(0.265d));
+		i.add(BigDecimal.valueOf(0.392d));
+		
+		c.add(BigDecimal.valueOf(1.77d));
+		c.add(BigDecimal.valueOf(92d));
+		
+		f.add(BigDecimal.valueOf(0.2d));
+		f.add(BigDecimal.valueOf(0.8d));
+		
+		BigDecimal im = mixing.computeIsotope(i, c, f);
 
-		GeoData geoData = new GeoData(members);
-		geoData.setStep(0.2d);
-		
-		GeoData[] gd = { geoData };
-		
-		Mixing mixing = new Mixing(gd);
-		mixing.setStep(0.2d);
-		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
-//		ArrayList<ArrayList<BigDecimal>> f = mixing.f(2);
-		mixing.compute();
 		System.out.println("end: ");
 	}
+	
 }

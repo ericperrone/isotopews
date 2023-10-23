@@ -55,34 +55,35 @@ public class TableSampleBean {
 			List<SampleFieldBean> fields = s.getFields();
 			if (fields != null) {
 				for (SampleFieldBean f : fields) {
-					TableItem item = index.get(f.getFieldName());
+					TableItem item = index.get(f.getFieldName().toUpperCase());
 					row.set(item.headerColumn, f.getFieldValue());
 				}
 			}
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean c : components) {
-					TableItem item = index.get(c.getComponent());
+					TableItem item = index.get(c.getComponent().toUpperCase());
 					row.set(item.headerColumn, "" + c.getValue());
 				}
 			}
 			body.add(row);
 		}
 	}
-
+	
 	private void buildHeader(List<SampleBean> beans, boolean typeFlag) {
 		int position = 0;
 		for (SampleBean s : beans) {
 			List<SampleFieldBean> fields = s.getFields();
 			if (fields != null) {
 				for (SampleFieldBean f : fields) {
-					if (index.get(f.getFieldName()) == null) {
+					String name = f.getFieldName().toUpperCase();
+					if (index.get(name) == null) {
 						TableItem item = new TableItem();
 						item.headerColumn = position;
-						item.headerName = f.getFieldName();
-						index.put(f.getFieldName(), item);
+						item.headerName = name;
+						index.put(name, item);
 						position++;
-						header.add(typeFlag == false ? f.getFieldName() : "F\\" + f.getFieldName());
+						header.add(typeFlag == false ? name : "F\\" + name);
 					}
 				}
 			}
@@ -91,14 +92,15 @@ public class TableSampleBean {
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean f : components) {
-					if (index.get(f.getComponent()) == null) {
+					String component = f.getComponent().toUpperCase();
+					if (index.get(component) == null) {
 						if (!f.getIsIsotope()) {
 							TableItem item = new TableItem();
 							item.headerColumn = position;
-							item.headerName = f.getComponent();
-							index.put(f.getComponent(), item);
+							item.headerName = component;
+							index.put(component, item);
 							position++;
-							header.add(typeFlag == false ? f.getComponent() : "C\\" + f.getComponent());
+							header.add(typeFlag == false ? component : "C\\" + component);
 						}
 					}
 				}
@@ -108,14 +110,15 @@ public class TableSampleBean {
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean f : components) {
-					if (index.get(f.getComponent()) == null) {
+					String component = f.getComponent().toUpperCase();
+					if (index.get(component) == null) {
 						if (f.getIsIsotope()) {
 							TableItem item = new TableItem();
 							item.headerColumn = position;
-							item.headerName = f.getComponent();
-							index.put(f.getComponent(), item);
+							item.headerName = component;
+							index.put(component, item);
 							position++;
-							header.add(typeFlag == false ? f.getComponent() : "I\\" + f.getComponent());
+							header.add(typeFlag == false ? component : "I\\" + component);
 						}
 					}
 				}
