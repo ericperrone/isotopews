@@ -296,9 +296,9 @@ public class Mixing {
 			im = im.add(i.get(j).multiply(m));
 		}
 		BigDecimal cm = computeConcentration(c, f);
-		System.out.println("cm: " + cm.doubleValue());
+//		System.out.println("cm: " + cm.doubleValue());
 		im = im.divide(cm, MathContext.DECIMAL64);
-		System.out.println("im: " + im.doubleValue());
+//		System.out.println("im: " + im.doubleValue());
 		return im;
 	}
 
@@ -326,7 +326,7 @@ public class Mixing {
 		for (int i = position1; i < size - 1; i++) {
 			for (int j = i + 1; j < size; j++) {
 				ArrayList<ArrayList<BigDecimal>> parziale = shuffle(f, i, j, size);
-				printF(parziale);
+//				printF(parziale);
 				result.addAll(parziale);				
 			}
 		}
