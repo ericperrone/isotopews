@@ -87,7 +87,10 @@ public class Author extends ResultBuilder {
 			Gson gson = new Gson();
 
 			if (surname == null || surname.length() <= 0) {
-				json = gson.toJson(new ArrayList<AuthorBean>());
+				AuthorQuery authorQuery = new AuthorQuery();
+				ArrayList<AuthorBean> authors = authorQuery.getAuthors(null);
+				json = gson.toJson(authors);
+				// json = gson.toJson(new ArrayList<AuthorBean>());
 			} else {
 				AuthorQuery authorQuery = new AuthorQuery();
 				ArrayList<AuthorBean> authors = authorQuery.getAuthors(new AuthorBean(name, surname));
