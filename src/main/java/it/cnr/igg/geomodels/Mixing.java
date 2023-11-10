@@ -126,7 +126,7 @@ public class Mixing {
 			c1.add(BigDecimal.valueOf(m.concentration));
 			c2.add(BigDecimal.valueOf(m.concentration2));
 		}
-		ArrayList<ArrayList<BigDecimal>> fi = f(members.length);
+		ArrayList<ArrayList<BigDecimal>> fi = fn2(members.length);
 
 		ArrayList<ArrayList<MixSample>> index = new ArrayList<ArrayList<MixSample>>();
 		for (int j = 0; j < fi.size(); j++) {
@@ -199,11 +199,11 @@ public class Mixing {
 //		return result;
 //	}
 
-	public ArrayList<ArrayList<BigDecimal>> f(int size) {
+//	public ArrayList<ArrayList<BigDecimal>> f(int size) {
 //		if (size == 2)
 //			return f2();
-		return fn(size);
-	}
+//		return fn2(size);
+//	}
 
 //	private ArrayList<ArrayList<BigDecimal>> f2() {
 //		BigDecimal start = BigDecimal.valueOf(startValue);
@@ -296,54 +296,66 @@ public class Mixing {
 			im = im.add(i.get(j).multiply(m));
 		}
 		BigDecimal cm = computeConcentration(c, f);
-//		System.out.println("cm: " + cm.doubleValue());
 		im = im.divide(cm, MathContext.DECIMAL64);
-//		System.out.println("im: " + im.doubleValue());
 		return im;
 	}
 
-	public ArrayList<ArrayList<BigDecimal>> fn(int size) {
-		ArrayList<ArrayList<BigDecimal>> f = new ArrayList<ArrayList<BigDecimal>>();
-		BigDecimal zero = BigDecimal.valueOf(0d);
-		BigDecimal uno = BigDecimal.valueOf(1d);
-		BigDecimal increment = BigDecimal.valueOf(step);
-		int position1 = 0;
-		int position2 = 1;
-		for (BigDecimal i = BigDecimal.valueOf(0d); i.compareTo(uno) <= 0; i = i.add(increment)) {
-			ArrayList<BigDecimal> row = new ArrayList<BigDecimal>();
-			for (int j = 0; j < size; j++) {
-				row.add(BigDecimal.valueOf(0d));
-			}
-			if (position1 < size - 1) {
-				row.set(position1, i);
-				row.set(position1 + 1, BigDecimal.valueOf(1d).subtract(i));
-			}
-			f.add(row);
+	public void fnr(int size, int position, BigDecimal positionValue, ArrayList<ArrayList<BigDecimal>> f) {
+		if (position == size)
+			return;
+		BigDecimal sum = BigDecimal.valueOf(0d);
+		ArrayList<BigDecimal> newRow = new ArrayList<BigDecimal>();
+		for (int i = 0; i < position - 1; i++) {
+			newRow.add(i, f.get(f.size() - 1).get(i));
 		}
 		
-		ArrayList<ArrayList<BigDecimal>> result = (ArrayList<ArrayList<BigDecimal>>)f.clone();
+		newRow.add(position - 1, positionValue);
 		
-		for (int i = position1; i < size - 1; i++) {
+		for (int i = 0; i < position; i++) {
+			sum = sum.add(newRow.get(i));
+		}
+		newRow.add(position, BigDecimal.valueOf(1d).subtract(sum));
+		if (position < size - 1) {
+			for (int i = position + 1; i < size; i++) {
+				newRow.add(i, BigDecimal.valueOf(0d));
+			}
+		}
+		f.add(newRow);
+		BigDecimal index = newRow.get(position);
+		while (index.compareTo(BigDecimal.valueOf(0d)) > 0) {
+			fnr(size, position + 1, index, f);
+			index = index.subtract(BigDecimal.valueOf(step));
+		}
+		
+	}
+
+	public ArrayList<ArrayList<BigDecimal>> fn2(int size) {
+		ArrayList<ArrayList<BigDecimal>> f = new ArrayList<ArrayList<BigDecimal>>();
+		ArrayList<BigDecimal> first = new ArrayList<BigDecimal>();
+		first.add(0, BigDecimal.valueOf(0d));
+		first.add(1, BigDecimal.valueOf(1d));
+		for (int i = 2; i < size; i++) {
+			first.add(i, BigDecimal.valueOf(0d));
+		}
+		f.add(first);
+		BigDecimal index = BigDecimal.valueOf(0d);
+		while (index.compareTo(BigDecimal.valueOf(1d)) <= 0) {
+			fnr(size, 1, index, f);
+			index = index.add(BigDecimal.valueOf(step));
+		}
+		ArrayList<ArrayList<BigDecimal>> result = (ArrayList<ArrayList<BigDecimal>>) f.clone();
+
+		for (int i = 0; i < size - 1; i++) {
 			for (int j = i + 1; j < size; j++) {
 				ArrayList<ArrayList<BigDecimal>> parziale = shuffle(f, i, j, size);
-//				printF(parziale);
-				result.addAll(parziale);				
+				result.addAll(parziale);
 			}
 		}
-		
-//		shuffle(f, position1, position2, size);
-//		position1 = 1;
-//		position2 = 2;
-//		shuffle(f, position1, position2, size);
-//		position1 = 0;
-//		position2 = 2;
-//		shuffle(f, position1, position2, size);
-//		printF(result);
-		
-		f = deleteDuplicates(result);
 
+		f = deleteDuplicates(result);
 		return f;
 	}
+
 
 	private ArrayList<ArrayList<BigDecimal>> shuffle(ArrayList<ArrayList<BigDecimal>> f, int pos1, int pos2, int size) {
 		ArrayList<ArrayList<BigDecimal>> f1 = new ArrayList<ArrayList<BigDecimal>>(); // (ArrayList<ArrayList<BigDecimal>>)f.clone();
@@ -355,17 +367,6 @@ public class Mixing {
 			row.set(pos2, old);
 			f1.add(row);
 		}
-//		
-//		
-//		for (int p = pos1; p < size - 1; p++) {
-//			for (int i = 0; i < len; i++) {
-//				ArrayList<BigDecimal> row = (ArrayList<BigDecimal>) f.get(i).clone();
-//				BigDecimal old = row.get(pos1);
-//				row.set(pos1, row.get(pos2));
-//				row.set(pos2, old);
-//				f1.add(row);
-//			}
-//		}
 		return f1;
 	}
 
@@ -426,14 +427,15 @@ public class Mixing {
 //		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
 //		mixing.compute();
 		Mixing mixing = new Mixing();
-		mixing.setStep(0.5d);
-		ArrayList<ArrayList<BigDecimal>> result = mixing.fn(4);
-		for (int i = 0; i < result.size(); i++) {
-			for (int j = 0; j < result.get(i).size(); j++) {
-				System.out.print(result.get(i).get(j) + "  ");
-			}
-			System.out.println();
-		}
+		mixing.setStep(0.1d);
+		ArrayList<ArrayList<BigDecimal>> result = mixing.fn2(4);
+		mixing.printF(result);
+//		for (int i = 0; i < result.size(); i++) {
+//			for (int j = 0; j < result.get(i).size(); j++) {
+//				System.out.print(result.get(i).get(j) + "  ");
+//			}
+//			System.out.println();
+//		}
 //		ArrayList<BigDecimal> i = new ArrayList<BigDecimal>();
 //		ArrayList<BigDecimal> c = new ArrayList<BigDecimal>();
 //		ArrayList<BigDecimal> f = new ArrayList<BigDecimal>();
@@ -449,7 +451,7 @@ public class Mixing {
 //		
 //		BigDecimal im = mixing.computeIsotope(i, c, f);
 
-		System.out.println("end: ");
+		System.out.println("end");
 	}
 
 }
