@@ -58,7 +58,7 @@ public class MixingModel extends ResultBuilder {
 			
 			Mixing mixing = new Mixing(geoData);
 			mixing.compute();
-			Object result = mixing.getResult();
+			Object result = mixing.getMixingOutput();
 			return ok(gson.toJson(result));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
