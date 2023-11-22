@@ -1,4 +1,5 @@
 package it.cnr.igg.rest;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.queries.MainQuery;
+import it.cnr.igg.isotopedb.tools.GeoCoord;
 import it.cnr.igg.isotopedb.tools.QueryFilter;
 import it.cnr.igg.models.TableSampleBean;
 
@@ -40,17 +42,17 @@ public class Query extends ResultBuilder {
 	public Response getSamplesOpt() {
 		return ok("");
 	}
-	
+
 	@Path("/get-samples")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamples(@QueryParam("meta") String meta, 
-			@QueryParam("auth") String authors,
-			@QueryParam("ref") String ref,
-			@QueryParam("year") String year) {
+	public Response getSamples(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
+			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
+			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
 		try {
-			ArrayList<SampleBean> beans = querySamples(meta, authors, ref, year);
+			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
+			ArrayList<SampleBean> beans = querySamples(filter);
 			TableSampleBean tsb = new TableSampleBean();
 			tsb.build(beans, true);
 			String json = "";
@@ -61,8 +63,7 @@ public class Query extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-	
-	
+
 	@Path("/query")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -75,12 +76,12 @@ public class Query extends ResultBuilder {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response query(@QueryParam("meta") String meta, 
-			@QueryParam("auth") String authors,
-			@QueryParam("ref") String ref,
-			@QueryParam("year") String year) {
+	public Response query(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
+			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
+			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
 		try {
-			ArrayList<SampleBean> beans = querySamples(meta, authors, ref, year);
+			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
+			ArrayList<SampleBean> beans = querySamples(filter);
 			String json = "";
 			Gson gson = new Gson();
 			json = gson.toJson(beans);
@@ -89,13 +90,22 @@ public class Query extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-	
-	private ArrayList<SampleBean> querySamples(String meta,
-			String authors,
-			String ref,
-			String year) throws Exception, DbException {
-		MainQuery mainQuery = new MainQuery();
+
+	private QueryFilter initFilter(String meta, String authors, String ref, String year, String x0, String y0,
+			String x1, String y1) {
 		QueryFilter filter = new QueryFilter();
+		if (x0 != null && x0.length() > 0 && y0 != null && y0.length() > 0 && x1 != null && x1.length() > 0
+				&& y1 != null && y1.length() > 0) {
+			Double lat0 = Double.valueOf(y0);
+			Double lon0 = Double.valueOf(x0);
+			Double lat1 = Double.valueOf(y1);
+			Double lon1 = Double.valueOf(x1);
+			Double minLatitude = lat0 <= lat1 ? lat0 : lat1;
+			Double maxLatitude = lat0 <= lat1 ? lat1 : lat0;
+			Double minLongitude = lon0 <= lon0 ? lon0 : lon1;
+			Double maxLongitude = lon0 <= lon1 ? lon1 : lon0;
+			filter.geoCoord = new GeoCoord(minLatitude, minLongitude, maxLatitude, maxLongitude);
+		}
 		if (meta != null) {
 			filter.keywords = meta.split(" ");
 		}
@@ -108,6 +118,13 @@ public class Query extends ResultBuilder {
 		if (year != null) {
 			filter.year = Integer.valueOf(year);
 		}
+
+		return filter;
+	}
+
+	private ArrayList<SampleBean> querySamples(QueryFilter filter)
+			throws Exception, DbException {
+		MainQuery mainQuery = new MainQuery();
 		ArrayList<SampleBean> beans = mainQuery.query(filter);
 		return beans;
 	}

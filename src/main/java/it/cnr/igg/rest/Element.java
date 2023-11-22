@@ -21,28 +21,27 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
-import it.cnr.igg.isotopedb.beans.AuthorBean;
-import it.cnr.igg.isotopedb.queries.AuthorQuery;
+import it.cnr.igg.isotopedb.beans.ElementBean;
+import it.cnr.igg.isotopedb.queries.ElementQuery;
 
 @Path("")
-public class Author extends ResultBuilder {
-
+public class Element extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 
-	@Path("/insert-author")
+	@Path("/insert-element")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response insertAuthorOpt() {
+	public Response insertElementOpt() {
 		return ok("");
 	}
 
-	@Path("/insert-author")
+	@Path("/insert-element")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response insertAuthor() {
+	public Response insertElement() {
 		Gson gson = new Gson();
 		try {
 			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
@@ -54,47 +53,40 @@ public class Author extends ResultBuilder {
 				buffer.append(line);
 			}
 			final String data = buffer.toString();
-
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
-			AuthorBean bean = new AuthorBean("" + payload.get("name"), "" + payload.get("surname"));
-			AuthorQuery authQuery = new AuthorQuery();
-			bean = authQuery.insert(bean);
-			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(bean))));
+			ElementBean bean = new ElementBean("" + payload.get("element"),
+					("" + payload.get("isotope")).equalsIgnoreCase("true") ? true : false,
+					payload.get("group") == null ? null : "" + payload.get("group"));
+			ElementQuery eq = new ElementQuery();
+			eq.insert(bean);
+			return ok();
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
 
-	@Path("/get-authors")
+	@Path("/get-elements")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAuthorsOpt() {
+	public Response getElementsOpt() {
 		return ok("");
 	}
 
-	@Path("/get-authors")
+	@Path("/get-elements")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAuthors(@QueryParam("surname") String surname, @QueryParam("name") String name) {
+	public Response getAuthors() {
+		String json = "";
+		Gson gson = new Gson();
 		try {
-			String json = "";
-			Gson gson = new Gson();
-
-			if (surname == null || surname.length() <= 0) {
-				AuthorQuery authorQuery = new AuthorQuery();
-				ArrayList<AuthorBean> authors = authorQuery.getAuthors(null);
-				json = gson.toJson(authors);
-				// json = gson.toJson(new ArrayList<AuthorBean>());
-			} else {
-				AuthorQuery authorQuery = new AuthorQuery();
-				ArrayList<AuthorBean> authors = authorQuery.getAuthors(new AuthorBean(name, surname));
-				json = gson.toJson(authors);
-			}
+			ElementQuery eq = new ElementQuery();
+			ArrayList<ElementBean> beans = eq.getAll();
+			json = gson.toJson(beans);
 			return ok(json);
-		} catch (Exception ex) {
-			return error(ex.getMessage());
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
 
