@@ -55,7 +55,7 @@ public class Mixing {
 	public ArrayList<MixingResult> getResult() {
 		return this.results;
 	}
-	
+
 	public MixingOutput getMixingOutput() {
 		return mixingOutput;
 	}
@@ -158,9 +158,9 @@ public class Mixing {
 		for (int i = 0; i < position - 1; i++) {
 			newRow.add(i, f.get(f.size() - 1).get(i));
 		}
-		
+
 		newRow.add(position - 1, positionValue);
-		
+
 		for (int i = 0; i < position; i++) {
 			sum = sum.add(newRow.get(i));
 		}
@@ -176,7 +176,7 @@ public class Mixing {
 			fnr(size, position + 1, index, f);
 			index = index.subtract(BigDecimal.valueOf(step));
 		}
-		
+
 	}
 
 	public ArrayList<ArrayList<BigDecimal>> fn2(int size) {
@@ -196,26 +196,8 @@ public class Mixing {
 		}
 		long end = System.currentTimeMillis();
 		System.out.println("time elapsed: " + (end - start) + " generated: " + f.size() + " rows");
-//		ArrayList<ArrayList<BigDecimal>> result = (ArrayList<ArrayList<BigDecimal>>) f.clone();
-//
-//		start = System.currentTimeMillis();
-//		for (int i = 0; i < size - 1; i++) {
-//			for (int j = i + 1; j < size; j++) {
-//				ArrayList<ArrayList<BigDecimal>> parziale = shuffle(f, i, j, size);
-//				result.addAll(parziale);
-//			}
-//		}
-//		end = System.currentTimeMillis();
-//		System.out.println("time elapsed: " + (end - start) + " generated: " + result.size() + " rows");
-		
-//		start = System.currentTimeMillis();
-//		f = deleteDuplicates(result);
-//		end = System.currentTimeMillis();
-//		System.out.println("time elapsed: " + (end - start) + " generated: " + f.size() + " rows");
-//		return f;
 		return f;
 	}
-
 
 	private ArrayList<ArrayList<BigDecimal>> shuffle(ArrayList<ArrayList<BigDecimal>> f, int pos1, int pos2, int size) {
 		ArrayList<ArrayList<BigDecimal>> f1 = new ArrayList<ArrayList<BigDecimal>>(); // (ArrayList<ArrayList<BigDecimal>>)f.clone();
@@ -274,6 +256,20 @@ public class Mixing {
 		System.out.println();
 	}
 
+	public Double distanza(Double x0, Double y0, Double x1, Double y1) {
+		BigDecimal xx0 = BigDecimal.valueOf(x0);
+		BigDecimal yy0 = BigDecimal.valueOf(y0);
+		BigDecimal xx1 = BigDecimal.valueOf(x1);
+		BigDecimal yy1 = BigDecimal.valueOf(y1);
+		BigDecimal modulo1 = xx0.subtract(xx1);
+		modulo1 = modulo1.multiply(modulo1);
+		BigDecimal modulo2 = yy0.subtract(yy1);
+		modulo2 = modulo2.multiply(modulo2);
+		BigDecimal modulo = modulo1.add(modulo2);
+		modulo = modulo.sqrt(MathContext.DECIMAL64);
+		return modulo.doubleValue();
+	}
+
 	public static void main(String args[]) {
 //		Member[] members = { new Member("M01", "SIO2", 53.06d), new Member("M02", "SIO2", 55.98d), new Member("M03", "SIO2", 55.29d) };
 //
@@ -287,9 +283,13 @@ public class Mixing {
 //		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
 //		mixing.compute();
 		Mixing mixing = new Mixing();
-		mixing.setStep(0.1d);
-		ArrayList<ArrayList<BigDecimal>> result = mixing.fn2(3);
-		mixing.printF(result);
+		Double d = mixing.distanza(1d, 1d, 2d, 2d);
+		d = mixing.distanza(19.2705d, 8.5895d, 19.37d, 8.7d);
+		System.out.println(d);
+		System.out.println(1d - d);
+//		mixing.setStep(0.1d);
+//		ArrayList<ArrayList<BigDecimal>> result = mixing.fn2(3);
+//		mixing.printF(result);
 //		for (int i = 0; i < result.size(); i++) {
 //			for (int j = 0; j < result.get(i).size(); j++) {
 //				System.out.print(result.get(i).get(j) + "  ");
