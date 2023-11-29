@@ -1,6 +1,9 @@
 package it.cnr.igg.geomodels;
 
 import java.util.ArrayList;
+
+import it.cnr.igg.helper.MathTools;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 
@@ -8,6 +11,11 @@ class MixSample {
 	public String member;
 	public String element;
 	public Double f;
+}
+
+class PlottedResult {
+	public Double[] weights;
+	public GeoData geoData;
 }
 
 class MixingResult {
@@ -59,6 +67,51 @@ public class Mixing {
 	public MixingOutput getMixingOutput() {
 		return mixingOutput;
 	}
+
+	public PlottedResult getPlotted() throws Exception {
+		int dim = data[0].getXs().length;
+		Double[][] A = new Double[dim][dim];
+		switch (dim) {
+		case 2:
+			fill2(A);
+			break;
+		case 3:
+			fill3(A);
+			break;
+		default:
+			throw new Exception("Unsopported number of variable: " + dim);
+		}
+		Double[] v = {data[0].getPlottedX(), data[0].getPlottedY(), 1d};
+		Double[] solution = MathTools.solveSystem(A, v);
+		for (Double s : solution) {
+			if (s < 0d || s > 1d) {
+				throw new Exception("No solution");
+			}
+		}
+		PlottedResult result = new PlottedResult();
+		result.geoData = data[0];
+		result.weights = solution;
+		return result;
+	}
+	
+	private void fill2(Double[][] A) {
+		A[0][0] = data[0].getXs()[0].concentration;
+		A[0][1] = data[0].getYs()[0].concentration;
+		A[1][0] = 1d;
+		A[1][1] = 1d;
+	}
+	
+	private void fill3(Double[][] A) {
+		A[0][0] = data[0].getXs()[0].concentration;
+		A[0][1] = data[0].getXs()[1].concentration;
+		A[0][2] = data[0].getXs()[2].concentration;
+		A[1][0] = data[0].getYs()[0].concentration;
+		A[1][1] = data[0].getYs()[1].concentration;
+		A[1][2] = data[0].getYs()[2].concentration;
+		A[2][0] = 1d;
+		A[2][1] = 1d;	
+		A[2][2] = 1d;
+	}		
 
 	public void compute() {
 		if (data != null) {
@@ -194,6 +247,7 @@ public class Mixing {
 			fnr(size, 1, index, f);
 			index = index.add(BigDecimal.valueOf(step));
 		}
+		f = deleteDuplicates(f);
 		long end = System.currentTimeMillis();
 		System.out.println("time elapsed: " + (end - start) + " generated: " + f.size() + " rows");
 		return f;

@@ -65,6 +65,78 @@ public class MixingModel extends ResultBuilder {
 		}
 	}
 	
+	@Path("/mixing-plot")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response mixingPlotOpt() {
+		return ok("");
+	}
+	
+	@Path("/mixing-plot")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response mixingPlot() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+			
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			GeoData geoData = jsonToGeoDataPlot(payload);
+			GeoData[] gd = new GeoData[1];
+			gd[0] = geoData;
+			Mixing mixing = new Mixing(gd);
+			Object result = mixing.getPlotted();
+			return ok(gson.toJson(result));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
+	private GeoData jsonToGeoDataPlot(LinkedTreeMap payload) {
+		GeoData geoData = new GeoData();
+		String x = "" + payload.get("xPoint");
+		String y = "" + payload.get("yPoint");
+		geoData.setPlottedX(Double.valueOf(x));
+		geoData.setPlottedY(Double.valueOf(y));
+		
+		ArrayList<LinkedTreeMap> xs = (ArrayList<LinkedTreeMap>) payload.get("xs");
+		ArrayList<LinkedTreeMap> ys = (ArrayList<LinkedTreeMap>) payload.get("ys");
+
+		geoData.setXYs(xs.size());
+		for (int j = 0; j < xs.size(); j++) {
+			String member = "" + xs.get(j).get("member");
+			String element = "" + xs.get(j).get("element");
+			Double concentration =  Double.valueOf("" + xs.get(j).get("concentration"));
+			Double concentration2 =  0d;
+			if (xs.get(j).get("concentration2") != null) {
+				concentration2 = Double.valueOf("" + xs.get(j).get("concentration2"));
+			}
+			geoData.addXs(member, element, concentration, concentration2, j);
+		}		
+		for (int j = 0; j < ys.size(); j++) {
+			String member = "" + ys.get(j).get("member");
+			String element = "" + ys.get(j).get("element");
+			Double concentration =  Double.valueOf("" + ys.get(j).get("concentration"));
+			Double concentration2 =  0d;
+			if (xs.get(j).get("concentration2") != null) {
+				concentration2 = Double.valueOf("" + ys.get(j).get("concentration2"));
+			}
+			geoData.addYs(member, element, concentration, concentration2, j);
+		}		
+		
+		return geoData;
+	}
+	
 	private GeoData[] jsonToGeoData(LinkedTreeMap payload) {
 		ArrayList<GeoData> geoData = new ArrayList<GeoData>();
 		ArrayList<LinkedTreeMap> data = (ArrayList<LinkedTreeMap>) payload.get("data");
@@ -95,5 +167,4 @@ public class MixingModel extends ResultBuilder {
 		}
 		return (GeoData[])geoData.toArray(new GeoData[geoData.size()]);
 	}
-
 }

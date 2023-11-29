@@ -25,6 +25,10 @@ public class GeoData {
 //	private String element;
 	private Member[] members;
 	private double step;
+	private Double plottedX;
+	private Double plottedY;
+	private Member[] xs;
+	private Member[] ys;
 	
 	public GeoData() {
 	}
@@ -51,6 +55,11 @@ public class GeoData {
 		this.members = new Member[size];
 	}
 	
+	public void setXYs(int size) {
+		this.xs = new Member[size];
+		this.ys = new Member[size];
+	}
+	
 	public void setMember(String member, String element, Double concentration, int index) {
 		this.members[index] = new Member(member, element, concentration);
 	}
@@ -62,4 +71,44 @@ public class GeoData {
 	public void setMember(String member, String element, Double concentration, Double concentration2, int index) {
 		this.members[index] = new Member(member, element, concentration, concentration2);
 	}
+
+	public Double getPlottedX() {
+		return plottedX;
+	}
+
+	public Double getPlottedY() {
+		return plottedY;
+	}
+
+	public void setPlottedX(Double plottedX) {
+		this.plottedX = plottedX;
+	}
+
+	public void setPlottedY(Double plottedY) {
+		this.plottedY = plottedY;
+	}
+
+	public Member[] getXs() {
+		return xs;
+	}
+
+	public Member[] getYs() {
+		return ys;
+	}
+
+	public void setXs(Member[] xs) {
+		this.xs = xs;
+	}
+
+	public void setYs(Member[] ys) {
+		this.ys = ys;
+	}
+	
+	public void addXs(String member, String element, double concentration, double concentration2, int position) {
+		xs[position] = new Member(member, element, concentration, concentration2);
+	}
+	
+	public void addYs(String member, String element, double concentration, double concentration2, int position) {
+		ys[position] = new Member(member, element, concentration, concentration2);
+	}	
 }
