@@ -20,7 +20,9 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
+import it.cnr.igg.isotopedb.beans.AuthorBean;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
+import it.cnr.igg.isotopedb.beans.DatasetBean;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
@@ -54,7 +56,44 @@ public class Sample extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
+	
+	@Path("/insert-fulldata")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response insertfullDataOpt() {
+		return ok("");
+	}
+	
+	@Path("/insert-fulldata")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response insertfullData() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+			
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			SampleBean sample = getSample((LinkedTreeMap)payload.get("data"));
+			DatasetBean dataset = getDatasetInfo((LinkedTreeMap)payload.get("data"));
+			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap)payload.get("data"));
+
+			return ok(gson.toJson(RestResult.resultOk("")));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+		
+	}	
+	
 	@Path("/insert-sample")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -90,6 +129,56 @@ public class Sample extends ResultBuilder {
 		}
 	}
 
+	private ArrayList<AuthorBean> getAuthorList(LinkedTreeMap payload) {
+		ArrayList<AuthorBean> beans = new ArrayList<AuthorBean>();
+		ArrayList<LinkedTreeMap> authors = (ArrayList<LinkedTreeMap>) payload.get("authors");
+		for (int i = 0; i < authors.size(); i++) {
+			LinkedTreeMap a = authors.get(i);
+			AuthorBean bean = new AuthorBean("" + a.get("name"), "" + a.get("surname"));
+			beans.add(bean);
+		}
+		return beans;
+	}
+	
+	private SampleBean getSample(LinkedTreeMap payload) {
+		SampleBean sb = new SampleBean();
+		LinkedTreeMap sample = (LinkedTreeMap)payload.get("sample");
+		ArrayList<LinkedTreeMap> components = (ArrayList<LinkedTreeMap>) sample.get("components");
+		ArrayList<LinkedTreeMap> fields = (ArrayList<LinkedTreeMap>) sample.get("fields");
+		sb.setFields(new ArrayList<SampleFieldBean>());
+		sb.setComponents(new ArrayList<ComponentBean>());
+		for (LinkedTreeMap s : fields) {
+			Object field = s.get("field");
+			Object value = s.get("value");
+			sb.getFields().add(new SampleFieldBean((String) field, (String) value));
+		}
+		for (LinkedTreeMap c : components) {
+			Object component = c.get("component");
+			Object value = c.get("value");
+			Object isotope = c.get("isIsotope");
+			try {
+				Double val = Double.parseDouble("" + value);
+				boolean isIsotope = (boolean) isotope;
+				sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+			} catch (Exception x) {
+				// x.printStackTrace();
+			}
+		}
+		return sb;
+	}
+	
+	private DatasetBean getDatasetInfo(LinkedTreeMap payload) {		
+		LinkedTreeMap dataset = (LinkedTreeMap) payload.get("dataset");
+		DatasetBean bean = new DatasetBean();
+		bean.setLink(dataset.get("ref") != null ? "" + dataset.get("ref") : null);
+		bean.setAuthors(dataset.get("authors") != null ? "" + dataset.get("authors") : null);
+		bean.setFileName(dataset.get("fileName") != null ? "" + dataset.get("fileName") : null);
+		bean.setYear(dataset.get("year") != null ? Double.valueOf("" + dataset.get("year")).intValue() : null);
+		bean.setMetadata(dataset.get("metadata") != null ? "" + dataset.get("metadata") : null);
+		bean.setProcessed(true);
+		return bean;
+	}
+	
 	private ArrayList<SampleBean> toSampleBean(LinkedTreeMap payload) {
 		ArrayList<SampleBean> beans = new ArrayList<SampleBean>();
 		ArrayList<LinkedTreeMap> samples = (ArrayList<LinkedTreeMap>) payload.get("samples");
