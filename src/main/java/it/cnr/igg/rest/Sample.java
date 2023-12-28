@@ -86,6 +86,9 @@ public class Sample extends ResultBuilder {
 			SampleBean sample = getSample((LinkedTreeMap)payload.get("data"));
 			DatasetBean dataset = getDatasetInfo((LinkedTreeMap)payload.get("data"));
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap)payload.get("data"));
+			
+			SampleQuery sq = new SampleQuery();
+			sq.insertExternalSample(authors, dataset, sample);
 
 			return ok(gson.toJson(RestResult.resultOk("")));
 		} catch (Exception x) {
