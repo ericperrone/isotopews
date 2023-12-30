@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
@@ -26,6 +27,7 @@ import it.cnr.igg.isotopedb.beans.DatasetBean;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
+import it.cnr.igg.isotopedb.queries.AdministratorQuery;
 
 @Path("")
 public class Sample extends ResultBuilder {
@@ -72,6 +74,10 @@ public class Sample extends ResultBuilder {
 	public Response insertfullData() {
 		Gson gson = new Gson();
 		try {
+			String key = Commons.getKeyFromHeader(request);
+			AdministratorQuery aq = new AdministratorQuery();
+			aq.checkKey(key);
+			
 			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
 			String line = null;
@@ -112,6 +118,10 @@ public class Sample extends ResultBuilder {
 	public Response insert() {
 		Gson gson = new Gson();
 		try {
+			String key = Commons.getKeyFromHeader(request);
+			AdministratorQuery aq = new AdministratorQuery();
+			aq.checkKey(key);
+
 			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
 			String line = null;
