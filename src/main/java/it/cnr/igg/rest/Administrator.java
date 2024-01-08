@@ -28,6 +28,7 @@ import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.AdministratorQuery;
 
 class AccessKey {
+	public String status;
 	public String key;
 }
 
@@ -101,6 +102,7 @@ public class Administrator extends ResultBuilder {
 			AdministratorQuery aq = new AdministratorQuery();
 			String token = aq.login(bean);
 			AccessKey key = new AccessKey();
+			key.status= "success";
 			key.key = token;
 			return ok(gson.toJson(key));
 		} catch (Exception x) {

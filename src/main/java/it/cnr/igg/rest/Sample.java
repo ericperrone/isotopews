@@ -29,6 +29,11 @@ import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
 import it.cnr.igg.isotopedb.queries.AdministratorQuery;
 
+class ExternalSampleResult {
+	public String status;
+	public int result;
+}
+
 @Path("")
 public class Sample extends ResultBuilder {
 	@Context
@@ -94,9 +99,11 @@ public class Sample extends ResultBuilder {
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap)payload.get("data"));
 			
 			SampleQuery sq = new SampleQuery();
-			sq.insertExternalSample(authors, dataset, sample);
-
-			return ok(gson.toJson(RestResult.resultOk("")));
+			int result = sq.insertExternalSample(authors, dataset, sample);
+			ExternalSampleResult res = new ExternalSampleResult();
+			res.status = "success";
+			res.result = result;
+			return ok(gson.toJson(res));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
