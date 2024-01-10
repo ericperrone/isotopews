@@ -178,6 +178,21 @@ public class ContentDir extends ResultBuilder {
 		}
 	}
 
+	@Path("/get-links")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getLinks() {
+		try {
+			DatasetQuery dq = new DatasetQuery();
+			ArrayList<String> list = dq.getLinks();
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(list);
+			return ok(json);
+		} catch (Exception x) {
+			return error(x.getMessage());
+		}
+	}
 	
 	@Path("/contentdir")
 	@GET
