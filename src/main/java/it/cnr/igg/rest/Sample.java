@@ -105,6 +105,7 @@ public class Sample extends ResultBuilder {
 			res.result = result;
 			return ok(gson.toJson(res));
 		} catch (Exception x) {
+			x.printStackTrace();
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 		
