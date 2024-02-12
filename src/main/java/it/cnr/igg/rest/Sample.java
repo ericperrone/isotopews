@@ -11,6 +11,7 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -38,6 +39,39 @@ class ExternalSampleResult {
 public class Sample extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
+	
+	@Path("/query-samples-by-id")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySamplesByIdOpt() {
+		return ok("");
+	}
+	
+	@Path("/query-samples-by-id")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySamplesById(@QueryParam("ids") String ids) {
+		try {
+			SampleQuery sampleQuery = new SampleQuery();
+			ArrayList<Integer> idList = new ArrayList<Integer>();
+			String[] list = ids.split(",");
+			if (list.length <= 0) {
+				throw new Exception("Bad parameters (empty list)");
+			}
+			for (String s : list) {
+				idList.add(Integer.parseInt(s.trim()));
+			}
+			ArrayList<SampleBean> beans = sampleQuery.querySamplesById(idList);
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
 
 	@Path("/query-samples")
 	@OPTIONS
