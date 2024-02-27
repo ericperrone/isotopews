@@ -39,7 +39,7 @@ class ExternalSampleResult {
 public class Sample extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
-	
+
 	@Path("/query-samples-by-id")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class Sample extends ResultBuilder {
 	public Response querySamplesByIdOpt() {
 		return ok("");
 	}
-	
+
 	@Path("/query-samples-by-id")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class Sample extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-	
+
 	@Path("/insert-fulldata")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -105,7 +105,7 @@ public class Sample extends ResultBuilder {
 	public Response insertfullDataOpt() {
 		return ok("");
 	}
-	
+
 	@Path("/insert-fulldata")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -116,7 +116,7 @@ public class Sample extends ResultBuilder {
 			String key = Commons.getKeyFromHeader(request);
 			AdministratorQuery aq = new AdministratorQuery();
 			aq.checkKey(key);
-			
+
 			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
 			String line = null;
@@ -126,12 +126,12 @@ public class Sample extends ResultBuilder {
 				buffer.append(line);
 			}
 			final String data = buffer.toString();
-			
+
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
-			SampleBean sample = getSample((LinkedTreeMap)payload.get("data"));
-			DatasetBean dataset = getDatasetInfo((LinkedTreeMap)payload.get("data"));
-			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap)payload.get("data"));
-			
+			SampleBean sample = getSample((LinkedTreeMap) payload.get("data"));
+			DatasetBean dataset = getDatasetInfo((LinkedTreeMap) payload.get("data"));
+			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
+
 			SampleQuery sq = new SampleQuery();
 			int result = sq.insertExternalSample(authors, dataset, sample);
 			ExternalSampleResult res = new ExternalSampleResult();
@@ -142,9 +142,9 @@ public class Sample extends ResultBuilder {
 			x.printStackTrace();
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
-		
-	}	
-	
+
+	}
+
 	@Path("/insert-sample")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -173,7 +173,7 @@ public class Sample extends ResultBuilder {
 				buffer.append(line);
 			}
 			final String data = buffer.toString();
-			
+
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
 			ArrayList<SampleBean> beans = toSampleBean(payload);
 			SampleQuery sampleQuery = new SampleQuery();
@@ -194,35 +194,37 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	private SampleBean getSample(LinkedTreeMap payload) {
 		SampleBean sb = new SampleBean();
-		LinkedTreeMap sample = (LinkedTreeMap)payload.get("sample");
-		ArrayList<LinkedTreeMap> components = (ArrayList<LinkedTreeMap>) sample.get("components");
-		ArrayList<LinkedTreeMap> fields = (ArrayList<LinkedTreeMap>) sample.get("fields");
-		sb.setFields(new ArrayList<SampleFieldBean>());
-		sb.setComponents(new ArrayList<ComponentBean>());
-		for (LinkedTreeMap s : fields) {
-			Object field = s.get("field");
-			Object value = s.get("value");
-			sb.getFields().add(new SampleFieldBean((String) field, (String) value));
-		}
-		for (LinkedTreeMap c : components) {
-			Object component = c.get("component");
-			Object value = c.get("value");
-			Object isotope = c.get("isIsotope");
-			try {
-				Double val = Double.parseDouble("" + value);
-				boolean isIsotope = (boolean) isotope;
-				sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
-			} catch (Exception x) {
-				// x.printStackTrace();
+		LinkedTreeMap sample = (LinkedTreeMap) payload.get("sample");
+		if (sample != null) {
+			ArrayList<LinkedTreeMap> components = (ArrayList<LinkedTreeMap>) sample.get("components");
+			ArrayList<LinkedTreeMap> fields = (ArrayList<LinkedTreeMap>) sample.get("fields");
+			sb.setFields(new ArrayList<SampleFieldBean>());
+			sb.setComponents(new ArrayList<ComponentBean>());
+			for (LinkedTreeMap s : fields) {
+				Object field = s.get("field");
+				Object value = s.get("value");
+				sb.getFields().add(new SampleFieldBean((String) field, (String) value));
+			}
+			for (LinkedTreeMap c : components) {
+				Object component = c.get("component");
+				Object value = c.get("value");
+				Object isotope = c.get("isIsotope");
+				try {
+					Double val = Double.parseDouble("" + value);
+					boolean isIsotope = (boolean) isotope;
+					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+				} catch (Exception x) {
+					// x.printStackTrace();
+				}
 			}
 		}
 		return sb;
 	}
-	
-	private DatasetBean getDatasetInfo(LinkedTreeMap payload) {		
+
+	private DatasetBean getDatasetInfo(LinkedTreeMap payload) {
 		LinkedTreeMap dataset = (LinkedTreeMap) payload.get("dataset");
 		DatasetBean bean = new DatasetBean();
 		bean.setLink(dataset.get("ref") != null ? "" + dataset.get("ref") : null);
@@ -233,13 +235,13 @@ public class Sample extends ResultBuilder {
 		bean.setProcessed(true);
 		return bean;
 	}
-	
+
 	private ArrayList<SampleBean> toSampleBean(LinkedTreeMap payload) {
 		ArrayList<SampleBean> beans = new ArrayList<SampleBean>();
 		ArrayList<LinkedTreeMap> samples = (ArrayList<LinkedTreeMap>) payload.get("samples");
 		for (int i = 0; i < samples.size(); i++) {
 			LinkedTreeMap ltm = samples.get(i);
-			Long datasetId = ((Double)ltm.get("datasetId")).longValue();
+			Long datasetId = ((Double) ltm.get("datasetId")).longValue();
 			ArrayList<LinkedTreeMap> fields = (ArrayList<LinkedTreeMap>) ltm.get("fields");
 			ArrayList<LinkedTreeMap> components = (ArrayList<LinkedTreeMap>) ltm.get("components");
 			SampleBean sb = new SampleBean();
