@@ -62,7 +62,7 @@ public class TableSampleBean {
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean c : components) {
-					TableItem item = index.get(c.getComponent().toUpperCase());
+					TableItem item = index.get(c.getComponent());
 					row.set(item.headerColumn, "" + c.getValue());
 				}
 			}
@@ -77,6 +77,7 @@ public class TableSampleBean {
 			if (fields != null) {
 				for (SampleFieldBean f : fields) {
 					String name = f.getFieldName().toUpperCase();
+					//String name = f.getFieldName();
 					if (index.get(name) == null) {
 						TableItem item = new TableItem();
 						item.headerColumn = position;
@@ -92,7 +93,8 @@ public class TableSampleBean {
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean f : components) {
-					String component = f.getComponent().toUpperCase();
+					// String component = f.getComponent().toUpperCase();
+					String component = f.getComponent();
 					if (index.get(component) == null) {
 						if (!f.getIsIsotope()) {
 							TableItem item = new TableItem();
@@ -110,7 +112,8 @@ public class TableSampleBean {
 			List<ComponentBean> components = s.getComponents();
 			if (components != null) {
 				for (ComponentBean f : components) {
-					String component = f.getComponent().toUpperCase();
+					// String component = f.getComponent().toUpperCase();
+					String component = f.getComponent();
 					if (index.get(component) == null) {
 						if (f.getIsIsotope()) {
 							TableItem item = new TableItem();
