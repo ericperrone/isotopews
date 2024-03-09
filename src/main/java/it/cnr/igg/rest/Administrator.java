@@ -23,10 +23,6 @@ import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.AdministratorBean;
-import it.cnr.igg.isotopedb.beans.ComponentBean;
-import it.cnr.igg.isotopedb.beans.DatasetBean;
-import it.cnr.igg.isotopedb.beans.SampleBean;
-import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.AdministratorQuery;
 
 class AccessKey {

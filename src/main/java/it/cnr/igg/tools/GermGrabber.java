@@ -40,8 +40,12 @@ public class GermGrabber {
 //				"germ.amourpart.txt",
 //				"germ.bluenilo.txt",
 //				"germ.congo.txt",
-				"germ.congopart.txt",
-				"germ.juba.txt"
+//				"germ.congopart.txt",
+//				"germ.juba.txt",
+//				"germ.dnepr.txt",
+//				"germ.don.txt",
+//				"germ.core.txt",
+//				"germ.silicates.txt"
 				};
 		for (String f : files) {
 			String filePath = File.separator + "dev" + File.separator + "germ" + File.separator + f;
