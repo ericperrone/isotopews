@@ -36,10 +36,41 @@ class ReservoirOut {
 	public ReservoirBean data;
 }
 
+class ReservoirListOut {
+	public String status;
+	public ArrayList<String> data;
+}
+
 @Path("")
 public class Reservoir extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
+	
+	@Path("/get-reservoir-list")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getReservoirListOpt() {
+		return ok("");
+	}
+	
+	@Path("/get-reservoir-list")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getReservoirList() {
+		ReservoirQuery rQuery = new ReservoirQuery();
+		Gson gson = new Gson();
+		try {
+			ArrayList<String> list = rQuery.getRerservoirList();
+			ReservoirListOut out = new ReservoirListOut();
+			out.status = "success";
+			out.data = list;
+			return ok(gson.toJson(out));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}	
+	}
 	
 	@Path("/get-reservoir")
 	@OPTIONS
