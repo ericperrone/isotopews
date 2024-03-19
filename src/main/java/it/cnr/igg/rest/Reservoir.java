@@ -18,11 +18,9 @@ import javax.ws.rs.core.Response;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.ReservoirBean;
-import it.cnr.igg.isotopedb.queries.AdministratorQuery;
 import it.cnr.igg.isotopedb.queries.ReservoirQuery;
 
 

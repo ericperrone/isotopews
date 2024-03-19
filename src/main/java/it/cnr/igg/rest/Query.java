@@ -22,108 +22,243 @@ import com.google.gson.internal.LinkedTreeMap;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
+import it.cnr.igg.isotopedb.beans.ReservoirBean;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.queries.MainQuery;
+import it.cnr.igg.isotopedb.queries.ReservoirQuery;
 import it.cnr.igg.isotopedb.tools.GeoCoord;
 import it.cnr.igg.isotopedb.tools.QueryFilter;
 import it.cnr.igg.models.TableSampleBean;
+
+class SampleList {
+	public String status;
+	public ArrayList<ArrayList<String>> tBody;
+}
 
 @Path("")
 public class Query extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 
-	@Path("/get-samples")
+	@Path("/query-info")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamplesOpt() {
+	public Response querySamplesOpt() {
 		return ok("");
 	}
 
-	@Path("/get-samples")
-	@GET
+	@Path("/query-info")
+	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamples(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
-			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
-			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
+	public Response querySamples() {
+		Gson gson = new Gson();
 		try {
-			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
-			ArrayList<SampleBean> beans = querySamples(filter);
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			ArrayList<QueryFilter> filters = fromJson(payload);
+			MainQuery mainQuery = new MainQuery();
+			ArrayList<SampleBean> beans = mainQuery.query(filters);
+
 			TableSampleBean tsb = new TableSampleBean();
 			tsb.build(beans, true);
-			String json = "";
-			Gson gson = new Gson();
-			json = gson.toJson(tsb.getBody());
-			return ok(json);
-		} catch (Exception ex) {
-			return error(ex.getMessage());
+//			String json = "";
+//			json = gson.toJson(tsb.getBody());
+//			
+			SampleList out = new SampleList();
+			out.status = SUCCESS;
+			out.tBody = tsb.getBody();
+			return ok(gson.toJson(out));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
 
-	@Path("/query")
-	@OPTIONS
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response queryOpt() {
-		return ok("");
+	private ArrayList<QueryFilter> fromJson(LinkedTreeMap payload) throws DbException {
+		ArrayList<QueryFilter> filters = new ArrayList<QueryFilter>();
+		LinkedTreeMap authors = (LinkedTreeMap) payload.get("authors");
+		LinkedTreeMap polygon = (LinkedTreeMap) payload.get("polygon");
+		LinkedTreeMap keywords = (LinkedTreeMap) payload.get("keywords");
+		LinkedTreeMap reference = (LinkedTreeMap) payload.get("reference");
+
+		QueryFilter qfAuthors = addAuthors(authors);
+		if (qfAuthors != null)
+			filters.add(qfAuthors);
+		QueryFilter qfKeywords = addKeywords(keywords);
+		if (qfKeywords != null)
+			filters.add(qfKeywords);
+
+		QueryFilter qfReference = addReference(reference);
+		if (qfReference != null)
+			filters.add(qfReference);
+
+		QueryFilter qfPolygon = addPolygon(polygon);
+		if (qfPolygon != null)
+			filters.add(qfPolygon);
+
+		return filters;
 	}
 
-	@Path("/query")
-	@GET
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response query(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
-			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
-			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
-		try {
-			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
-			ArrayList<SampleBean> beans = querySamples(filter);
-			String json = "";
-			Gson gson = new Gson();
-			json = gson.toJson(beans);
-			return ok(json);
-		} catch (Exception ex) {
-			return error(ex.getMessage());
-		}
-	}
-
-	private QueryFilter initFilter(String meta, String authors, String ref, String year, String x0, String y0,
-			String x1, String y1) {
+	private QueryFilter addPolygon(LinkedTreeMap polygon) throws DbException {
+		if (polygon == null)
+			return null;
 		QueryFilter filter = new QueryFilter();
-		if (x0 != null && x0.length() > 0 && y0 != null && y0.length() > 0 && x1 != null && x1.length() > 0
-				&& y1 != null && y1.length() > 0) {
-			Double lat0 = Double.valueOf(y0);
-			Double lon0 = Double.valueOf(x0);
-			Double lat1 = Double.valueOf(y1);
-			Double lon1 = Double.valueOf(x1);
-			Double minLatitude = lat0 <= lat1 ? lat0 : lat1;
-			Double maxLatitude = lat0 <= lat1 ? lat1 : lat0;
-			Double minLongitude = lon0 <= lon0 ? lon0 : lon1;
-			Double maxLongitude = lon0 <= lon1 ? lon1 : lon0;
-			filter.geoCoord = new GeoCoord(minLatitude, minLongitude, maxLatitude, maxLongitude);
-		}
-		if (meta != null) {
-			filter.keywords = meta.split(" ");
-		}
-		if (authors != null) {
-			filter.authors = authors.split(";");
-		}
-		if (ref != null) {
-			filter.ref = ref;
-		}
-		if (year != null) {
-			filter.year = Integer.valueOf(year);
-		}
-
+		String operator = (String) polygon.get("operator");
+		Double topLat = (Double) polygon.get("topLat");
+		Double topLon = (Double) polygon.get("topLon");
+		Double bottomLat = (Double) polygon.get("bottomLat");
+		Double bottomLon = (Double) polygon.get("bottomLon");
+		if (operator == null || topLat == null || topLon == null 
+				|| bottomLat == null || bottomLon == null)
+			throw new DbException("Bad parameter: polygon");
+		filter.coordinates = new GeoCoord(topLat, bottomLat, topLon, bottomLon);
 		return filter;
 	}
 
-	private ArrayList<SampleBean> querySamples(QueryFilter filter)
-			throws Exception, DbException {
+	private QueryFilter addReference(LinkedTreeMap reference) throws DbException {
+		if (reference == null)
+			return null;
+		QueryFilter filter = new QueryFilter();
+		String operator = (String) reference.get("operator");
+		String ref = (String) reference.get("reference");
+		if (operator == null || ref == null)
+			throw new DbException("Bad parameter: reference");
+		filter.setReference(operator, ref);
+		return filter;
+	}
+
+	private QueryFilter addAuthors(LinkedTreeMap authors) throws DbException {
+		if (authors == null)
+			return null;
+		QueryFilter filter = new QueryFilter();
+		String operator = (String) authors.get("operator");
+		ArrayList<String> auths = (ArrayList<String>) authors.get("authors");
+		if (operator == null || auths == null)
+			throw new DbException("Bad parameter: authors");
+		ArrayList<String> qfa = new ArrayList<String>();
+		for (String auth : auths) {
+			qfa.add(auth.trim());
+		}
+		filter.setAuthors(operator, qfa);
+		return filter;
+	}
+
+	private QueryFilter addKeywords(LinkedTreeMap keywords) throws DbException {
+		if (keywords == null)
+			return null;
+		QueryFilter filter = new QueryFilter();
+		String operator = (String) keywords.get("operator");
+		String keys = (String) keywords.get("keywords");
+		if (operator == null || keys == null)
+			throw new DbException("Bad parameter: keywords");
+		ArrayList<String> qfa = new ArrayList<String>();
+		String[] ks = keys.split(" ");
+		for (String k : ks) {
+			qfa.add(k);
+		}
+		filter.setKeywords(operator, qfa);
+		return filter;
+	}
+//	
+//	@Path("/get-samples")
+//	@OPTIONS
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getSamplesOpt() {
+//		return ok("");
+//	}
+//
+//	@Path("/get-samples")
+//	@GET
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getSamples(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
+//			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
+//			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
+//		try {
+//			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
+//			ArrayList<SampleBean> beans = querySamples(filter);
+//			TableSampleBean tsb = new TableSampleBean();
+//			tsb.build(beans, true);
+//			String json = "";
+//			Gson gson = new Gson();
+//			json = gson.toJson(tsb.getBody());
+//			return ok(json);
+//		} catch (Exception ex) {
+//			return error(ex.getMessage());
+//		}
+//	}
+
+//	@Path("/query")
+//	@OPTIONS
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response queryOpt() {
+//		return ok("");
+//	}
+//
+//	@Path("/query")
+//	@GET
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response query(@QueryParam("meta") String meta, @QueryParam("auth") String authors,
+//			@QueryParam("ref") String ref, @QueryParam("year") String year, @QueryParam("x0") String x0,
+//			@QueryParam("x1") String x1, @QueryParam("y0") String y0, @QueryParam("y1") String y1) {
+//		try {
+//			QueryFilter filter = initFilter(meta, authors, ref, year, x0, y0, x1, y1);
+//			ArrayList<SampleBean> beans = querySamples(filter);
+//			String json = "";
+//			Gson gson = new Gson();
+//			json = gson.toJson(beans);
+//			return ok(json);
+//		} catch (Exception ex) {
+//			return error(ex.getMessage());
+//		}
+//	}
+//
+//	private QueryFilter initFilter(String meta, String authors, String ref, String year, String x0, String y0,
+//			String x1, String y1) {
+//		QueryFilter filter = new QueryFilter();
+//		if (x0 != null && x0.length() > 0 && y0 != null && y0.length() > 0 && x1 != null && x1.length() > 0
+//				&& y1 != null && y1.length() > 0) {
+//			Double lat0 = Double.valueOf(y0);
+//			Double lon0 = Double.valueOf(x0);
+//			Double lat1 = Double.valueOf(y1);
+//			Double lon1 = Double.valueOf(x1);
+//			Double minLatitude = lat0 <= lat1 ? lat0 : lat1;
+//			Double maxLatitude = lat0 <= lat1 ? lat1 : lat0;
+//			Double minLongitude = lon0 <= lon0 ? lon0 : lon1;
+//			Double maxLongitude = lon0 <= lon1 ? lon1 : lon0;
+//			filter.geoCoord = new GeoCoord(minLatitude, minLongitude, maxLatitude, maxLongitude);
+//		}
+//		if (meta != null) {
+//			filter.keywords = meta.split(" ");
+//		}
+//		if (authors != null) {
+//			filter.authors = authors.split(";");
+//		}
+//		if (ref != null) {
+//			filter.ref = ref;
+//		}
+//		if (year != null) {
+//			filter.year = Integer.valueOf(year);
+//		}
+//
+//		return filter;
+//	}
+
+	private ArrayList<SampleBean> querySamples(QueryFilter filter) throws Exception, DbException {
 		MainQuery mainQuery = new MainQuery();
 		ArrayList<SampleBean> beans = mainQuery.query(filter);
 		return beans;

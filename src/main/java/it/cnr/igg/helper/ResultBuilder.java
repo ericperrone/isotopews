@@ -3,7 +3,9 @@ package it.cnr.igg.helper;
 import javax.ws.rs.core.Response;
 
 public class ResultBuilder {
-
+	public final String SUCCESS = "success";
+	public final String ERROR = "error";
+	
 	public Response ok() {
 		return Response.ok().header("Access-Control-Allow-Origin", "*")
 				.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT")
