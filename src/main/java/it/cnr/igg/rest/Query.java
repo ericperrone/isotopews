@@ -122,7 +122,11 @@ public class Query extends ResultBuilder {
 		if (operator == null || topLat == null || topLon == null 
 				|| bottomLat == null || bottomLon == null)
 			throw new DbException("Bad parameter: polygon");
-		filter.coordinates = new GeoCoord(topLat, bottomLat, topLon, bottomLon);
+		filter.setCoordinates(operator, new GeoCoord(
+				topLat <= bottomLat ? topLat : bottomLat, 
+				topLon <= bottomLon ? topLon : bottomLon, 
+				topLat >= bottomLat ? topLat : bottomLat, 
+				topLon >= bottomLon ? topLon : bottomLon)); 
 		return filter;
 	}
 
