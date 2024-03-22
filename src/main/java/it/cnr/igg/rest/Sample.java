@@ -259,15 +259,33 @@ public class Sample extends ResultBuilder {
 				Object value = c.get("value");
 				Object isotope = c.get("isIsotope");
 				try {
-					Double val = Double.parseDouble("" + value);
+					Double val = toDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
 					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
 				} catch (Exception x) {
-					// x.printStackTrace();
+					x.printStackTrace();
 				}
 			}
 			beans.add(sb);
 		}
 		return beans;
 	}
+	
+	public Double toDouble(String value) {
+		int comma = value.lastIndexOf(',');
+		int point = value.lastIndexOf('.');
+		if (comma < point) {
+			value = value.replaceAll(",", "");
+		} else {
+			value = value.replace(",", ".");
+		}
+		return Double.parseDouble(value);
+	}
+//	
+//	public static void main(String[] args) {
+//		String val = "12001";
+//		Sample sample = new Sample();
+//		double dVal = sample.toDouble(val);
+//		System.out.println(dVal);
+//	}
 }
