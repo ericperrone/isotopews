@@ -91,6 +91,7 @@ public class Query extends ResultBuilder {
 		LinkedTreeMap polygon = (LinkedTreeMap) payload.get("polygon");
 		LinkedTreeMap keywords = (LinkedTreeMap) payload.get("keywords");
 		LinkedTreeMap reference = (LinkedTreeMap) payload.get("reference");
+		LinkedTreeMap year = (LinkedTreeMap) payload.get("year");
 
 		QueryFilter qfAuthors = addAuthors(authors);
 		if (qfAuthors != null)
@@ -107,7 +108,24 @@ public class Query extends ResultBuilder {
 		if (qfPolygon != null)
 			filters.add(qfPolygon);
 
+		QueryFilter qfYear = addYear(year);
+		if (qfYear != null)
+			filters.add(qfYear);
+		
 		return filters;
+	}
+	
+	private QueryFilter addYear(LinkedTreeMap year) throws DbException {
+		if (year == null) {
+			return null;
+		}
+		QueryFilter filter = new QueryFilter();
+		String operator = (String) year.get("operator");
+		String temp = (String) year.get("year");
+		if (operator == null || temp == null)
+			throw new DbException("Bad parameter: year");
+		filter.setYear(operator, Integer.parseInt(temp));
+		return filter;
 	}
 
 	private QueryFilter addPolygon(LinkedTreeMap polygon) throws DbException {
