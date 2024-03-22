@@ -177,6 +177,22 @@ public class ContentDir extends ResultBuilder {
 			return error(x.getMessage());
 		}
 	}
+	
+	@Path("/get-years")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response geYears() {
+		try {
+			DatasetQuery dq = new DatasetQuery();
+			ArrayList<Integer> list = dq.getYears();
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(list);
+			return ok(json);
+		} catch (Exception x) {
+			return error(x.getMessage());
+		}
+	}
 
 	@Path("/get-links")
 	@GET
