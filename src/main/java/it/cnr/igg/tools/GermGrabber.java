@@ -46,6 +46,23 @@ public class GermGrabber {
 //				"germ.don.txt",
 //				"germ.core.txt",
 //				"germ.silicates.txt"
+//				"germ.kenya.txt",
+//				"germ.mozambique.txt",
+//				"germ.niger.txt",
+//				"germ.orange.txt",
+//				"germ.tanzania.txt",
+//				"germ.victoria.txt",
+//				"germ.zambezi.txt",
+//				"germ.aldan.txt"
+//				"germ.brahmaputra.txt",
+//				"germ.dvina.txt",
+//				"germ.gange.txt",
+//				"germ.indus.txt",
+//				"germ.irrawaddy.txt",
+//				"germ.lena.txt",
+//				"germ.mekong.txt"
+				"germ.yangtze.txt",
+				"germ.yellow.txt"
 				};
 		for (String f : files) {
 			String filePath = File.separator + "dev" + File.separator + "germ" + File.separator + f;
