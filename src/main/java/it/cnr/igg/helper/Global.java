@@ -14,7 +14,7 @@ public class Global {
 	public static final int POOL_MAX = 3;
 	public static String fileSeparator = File.separator;
 	public static String receivedPayLoad = null;
-	public static String dataFolder = fileSeparator + "dev";
+	public static String dataFolder = fileSeparator + "srv" + fileSeparator + "data";
 	public static Xlsx xls = null;
 	public static HashMap<String, Sheetx> pool = null;
 

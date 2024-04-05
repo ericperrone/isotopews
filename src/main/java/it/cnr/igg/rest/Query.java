@@ -112,10 +112,6 @@ public class Query extends ResultBuilder {
 		if (qfYear != null)
 			filters.add(qfYear);
 
-		QueryFilter qfYear = addYear(year);
-		if (qfYear != null)
-			filters.add(qfYear);
-		
 		return filters;
 	}
 	
@@ -152,19 +148,6 @@ public class Query extends ResultBuilder {
 		return filter;
 	}
 
-	private QueryFilter addYear(LinkedTreeMap year) throws DbException {
-		if (year == null)
-			return null;
-		QueryFilter filter = new QueryFilter();
-		String operator = (String) year.get("operator");
-		String years = (String) year.get("year");
-		if (operator == null || years == null)
-			throw new DbException("Bad parameter: reference");
-		filter.setYear(operator, years);
-		return filter;
-
-	}
-	
 	private QueryFilter addReference(LinkedTreeMap reference) throws DbException {
 		if (reference == null)
 			return null;
