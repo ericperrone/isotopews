@@ -1,11 +1,16 @@
 package it.cnr.igg.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.File;
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -17,21 +22,15 @@ import javax.ws.rs.core.Response;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
-import it.cnr.igg.isotopedb.beans.ComponentBean;
-import it.cnr.igg.isotopedb.beans.SampleBean;
-import it.cnr.igg.isotopedb.beans.SampleFieldBean;
+import it.cnr.igg.isotopedb.beans.DatasetBean;
 import it.cnr.igg.isotopedb.queries.DatasetQuery;
 import it.cnr.igg.sheetx.csv.Csv;
+import it.cnr.igg.sheetx.xlsx.Sheetx;
 import it.cnr.igg.sheetx.xlsx.Xlsx;
 import it.cnr.igg.sheetx.xlsx.Xsl;
-import it.cnr.igg.sheetx.xlsx.Sheetx;
-import it.cnr.igg.isotopedb.beans.DatasetBean;
 
 class ContentHelper {
 	public ArrayList<String> sheets;
@@ -97,7 +96,8 @@ public class ContentDir extends ResultBuilder {
 		Gson gson = new Gson();
 		try {
 			DatasetQuery datasetQuery = new DatasetQuery();
-			datasetQuery.deleteDataset(Long.valueOf(id));
+			String fileName = datasetQuery.deleteDataset(Long.valueOf(id));
+			deleteFile(fileName);
 			return ok(gson.toJson(RestResult.resultOk("deleted")));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
@@ -136,7 +136,8 @@ public class ContentDir extends ResultBuilder {
 			bean.setId(Math.round(id));
 			bean.setProcessed(true);
 			DatasetQuery datasetQuery = new DatasetQuery();
-			datasetQuery.updateProcessed(bean);
+			String fileName = datasetQuery.updateProcessed(bean);
+			deleteFile(fileName);
 			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(bean))));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
@@ -337,4 +338,9 @@ public class ContentDir extends ResultBuilder {
 		}
 	}
 
+	private void deleteFile(String fileName) {
+		String file = Global.dataFolder + Global.fileSeparator + fileName;
+		File f = new File(file);
+		f.delete();
+	}
 }
