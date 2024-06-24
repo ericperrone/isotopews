@@ -1,6 +1,10 @@
 package it.cnr.igg.geomodels;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.logging.log4j.util.PropertySource.Comparator;
 
 import it.cnr.igg.helper.MathTools;
 
@@ -232,6 +236,55 @@ public class Mixing {
 
 	}
 
+	public ArrayList<ArrayList<BigDecimal>> fn3() {
+		ArrayList<ArrayList<BigDecimal>> f = new ArrayList<ArrayList<BigDecimal>>();
+		BigDecimal zero = BigDecimal.valueOf(0d);
+		BigDecimal uno = BigDecimal.valueOf(1d);
+		BigDecimal bStep = BigDecimal.valueOf(step);
+		ArrayList<BigDecimal> row = new ArrayList<BigDecimal>();
+		for (int i = 0; i < 2; i++) {
+			row.add(i, zero);
+		}
+		row.add(2, uno);
+		f.add(row);
+		BigDecimal previous = zero;
+		BigDecimal increment = bStep;
+		while(previous.compareTo(uno) < 0) {
+			row = new ArrayList<BigDecimal>();
+			row.add(0, zero);
+			previous = previous.add(increment);
+			row.add(1, previous);
+			row.add(2, uno.subtract(previous));
+			f.add(row);
+		}
+		int size = f.size();
+		for (int i = 0; i < size; i++ ) {
+			row = new ArrayList<BigDecimal>();
+			row.add(0, f.get(i).get(1));
+			row.add(1, f.get(i).get(0));
+			row.add(2, f.get(i).get(2));
+			f.add(row);
+		}
+		for (int i = 0; i < size; i++ ) {
+			row = new ArrayList<BigDecimal>();
+			row.add(0, f.get(i).get(2));
+			row.add(1, f.get(i).get(1));
+			row.add(2, f.get(i).get(0));
+			f.add(row);
+		}
+		for (int i = 0; i < size; i++ ) {
+			row = new ArrayList<BigDecimal>();
+			row.add(0, f.get(i).get(0));
+			row.add(1, f.get(i).get(2));
+			row.add(2, f.get(i).get(1));
+			f.add(row);
+		}
+
+		f = deleteDuplicates(f);
+		return f;
+	}
+	
+
 	public ArrayList<ArrayList<BigDecimal>> fn2(int size) {
 		ArrayList<ArrayList<BigDecimal>> f = new ArrayList<ArrayList<BigDecimal>>();
 		ArrayList<BigDecimal> first = new ArrayList<BigDecimal>();
@@ -242,14 +295,68 @@ public class Mixing {
 		}
 		f.add(first);
 		BigDecimal index = BigDecimal.valueOf(0d);
-		long start = System.currentTimeMillis();
+//		long start = System.currentTimeMillis();
 		while (index.compareTo(BigDecimal.valueOf(1d)) <= 0) {
 			fnr(size, 1, index, f);
 			index = index.add(BigDecimal.valueOf(step));
 		}
+		if (size == 3) {
+			ArrayList<ArrayList<BigDecimal>> f3 = fn3();
+			for (int i = 0; i < f3.size(); i++) 
+				f.add(f3.get(i));
+		}
 		f = deleteDuplicates(f);
-		long end = System.currentTimeMillis();
-		System.out.println("time elapsed: " + (end - start) + " generated: " + f.size() + " rows");
+//		Collections.sort(f, new Comparator<ArrayList<ArrayList<BigDecimal>>>() {
+//		    @Override
+//		    public int compare(ArrayList<BigDecimal> item1, ArrayList<BigDecimal> item2) {
+//		    	int check1 = item1.get(0).compareTo(item2.get(0));
+//		    	if (check1 != 0)
+//		    		return check1;
+//		        return -item1.get(2).compareTo(item2.get(2));
+//		    }
+//		});
+		return sort(f);
+	}
+	
+	public ArrayList<ArrayList<BigDecimal>> sort(ArrayList<ArrayList<BigDecimal>> f) {
+		ArrayList<ArrayList<BigDecimal>> sorted = new ArrayList<ArrayList<BigDecimal>>();
+		while(min(f, sorted) == true); 
+		return sorted;
+	}
+	
+	private boolean min(ArrayList<ArrayList<BigDecimal>> source, ArrayList<ArrayList<BigDecimal>> target) {
+		if (source.size() == 0)
+			return false;
+		ArrayList<BigDecimal> min = source.get(0);
+		for (int i = 1; i < source.size(); i++) {
+			if (compare(min, source.get(i)) < 0) {
+				min = source.get(i);
+			}
+		}
+		target.add(min);
+		source.remove(min);
+		return true;
+	}
+	
+	private int compare(ArrayList<BigDecimal> a, ArrayList<BigDecimal> b) {
+    	int check1 = a.get(0).compareTo(b.get(0));
+    	return check1;
+//    	if (check1 != 0)
+//    		return check1;
+//    	int check2 = a.get(1).compareTo(b.get(1));
+//    	if (check2 != 0)
+//    		return -check2;
+//        return -a.get(2).compareTo(b.get(2));
+	}
+	
+	public ArrayList<ArrayList<BigDecimal>> FN(int size) {
+		ArrayList<ArrayList<BigDecimal>> f = fn2(size);
+		ArrayList<BigDecimal> last =  new ArrayList<BigDecimal>();
+		for (int i = 0; i < size - 1; i++) {
+			last.add(BigDecimal.valueOf(0d));
+		}
+		last.add(BigDecimal.valueOf(1d));
+		f.add(last);
 		return f;
 	}
 
@@ -325,24 +432,23 @@ public class Mixing {
 	}
 
 	public static void main(String args[]) {
-//		Member[] members = { new Member("M01", "SIO2", 53.06d), new Member("M02", "SIO2", 55.98d), new Member("M03", "SIO2", 55.29d) };
-//
-//		GeoData geoData = new GeoData(members);
-//		geoData.setStep(0.2d);
-//		
-//		GeoData[] gd = { geoData };
-//		
-//		Mixing mixing = new Mixing(gd);
-//		mixing.setStep(0.2d);
-//		ArrayList<ArrayList<BigDecimal>> f = mixing.f(members.length);
+		Member[] members = { new Member("M01", "SIO2", 53.06d), new Member("M02", "SIO2", 55.98d), new Member("M03", "SIO2", 55.29d) };
+
+		GeoData geoData = new GeoData(members);
+		geoData.setStep(0.10d);
+		
+		GeoData[] gd = { geoData };
+		
+		Mixing mixing = new Mixing(gd);
 //		mixing.compute();
-		Mixing mixing = new Mixing();
-		Double d = mixing.distanza(1d, 1d, 2d, 2d);
-		d = mixing.distanza(19.2705d, 8.5895d, 19.37d, 8.7d);
-		System.out.println(d);
-		System.out.println(1d - d);
-//		mixing.setStep(0.1d);
+		for (GeoData data : gd) {
+			mixing.setStep(data.getStep());
+		}
 //		ArrayList<ArrayList<BigDecimal>> result = mixing.fn2(3);
+		ArrayList<ArrayList<BigDecimal>> result = mixing.fn3();
+		mixing.printF(result);
+		System.out.println();
+//		result = mixing.fn2(3);
 //		mixing.printF(result);
 //		for (int i = 0; i < result.size(); i++) {
 //			for (int j = 0; j < result.get(i).size(); j++) {
@@ -367,5 +473,7 @@ public class Mixing {
 
 		System.out.println("end");
 	}
+	
+	
 
 }
