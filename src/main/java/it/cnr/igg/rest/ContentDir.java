@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
+import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
@@ -306,6 +307,7 @@ public class ContentDir extends ResultBuilder {
 					content = ((Xlsx) sheetx).getContent(sheet);
 				else
 					content = ((Xsl) sheetx).getContent(sheet);
+				boolean itineris = Commons.checkItinerisTemplate(content.get(0));
 				String json = "";
 				Gson gson = new Gson();
 				json = gson.toJson(content);
