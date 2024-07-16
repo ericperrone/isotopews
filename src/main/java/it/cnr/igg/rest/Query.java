@@ -115,19 +115,6 @@ public class Query extends ResultBuilder {
 		return filters;
 	}
 	
-	private QueryFilter addYear(LinkedTreeMap year) throws DbException {
-		if (year == null) {
-			return null;
-		}
-		QueryFilter filter = new QueryFilter();
-		String operator = (String) year.get("operator");
-		String temp = (String) year.get("year");
-		if (operator == null || temp == null)
-			throw new DbException("Bad parameter: year");
-		filter.setYear(operator, Integer.parseInt(temp));
-		return filter;
-	}
-
 	private QueryFilter addPolygon(LinkedTreeMap polygon) throws DbException {
 		if (polygon == null)
 			return null;
