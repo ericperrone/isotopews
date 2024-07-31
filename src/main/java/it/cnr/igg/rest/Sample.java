@@ -212,10 +212,11 @@ public class Sample extends ResultBuilder {
 				Object component = c.get("component");
 				Object value = c.get("value");
 				Object isotope = c.get("isIsotope");
+				Object um = c.get("um");
 				try {
 					Double val = Double.parseDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String)um));
 				} catch (Exception x) {
 					// x.printStackTrace();
 				}
