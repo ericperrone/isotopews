@@ -25,10 +25,12 @@ import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.beans.DatasetBean;
+import it.cnr.igg.isotopedb.beans.MatrixBean;
 import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
 import it.cnr.igg.isotopedb.queries.AdministratorQuery;
+import it.cnr.igg.isotopedb.queries.MatrixQuery;
 
 class ExternalSampleResult {
 	public String status;
@@ -131,6 +133,7 @@ public class Sample extends ResultBuilder {
 			SampleBean sample = getSample((LinkedTreeMap) payload.get("data"));
 			DatasetBean dataset = getDatasetInfo((LinkedTreeMap) payload.get("data"));
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
+			ArrayList<MatrixBean> matrices = getMatrices((LinkedTreeMap) payload.get("data"));
 
 			SampleQuery sq = new SampleQuery();
 			int result = sq.insertExternalSample(authors, dataset, sample);
@@ -191,6 +194,20 @@ public class Sample extends ResultBuilder {
 			LinkedTreeMap a = authors.get(i);
 			AuthorBean bean = new AuthorBean("" + a.get("name"), "" + a.get("surname"));
 			beans.add(bean);
+		}
+		return beans;
+	}
+	
+	private ArrayList<MatrixBean> getMatrices(LinkedTreeMap payload) {
+		ArrayList<MatrixBean> beans = new ArrayList<MatrixBean>();
+		ArrayList<LinkedTreeMap> m = (ArrayList<LinkedTreeMap>) payload.get("matrix");
+		for (int i = 0; i < m.size(); i++) {
+			String a = "" + m.get(i);
+			try {
+				beans = (new MatrixQuery()).getByName(a);
+			} catch (Exception x) {
+				x.printStackTrace();
+			}
 		}
 		return beans;
 	}
