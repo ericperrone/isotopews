@@ -134,6 +134,9 @@ public class Sample extends ResultBuilder {
 			DatasetBean dataset = getDatasetInfo((LinkedTreeMap) payload.get("data"));
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
 			ArrayList<MatrixBean> matrices = getMatrices((LinkedTreeMap) payload.get("data"));
+			if (matrices != null && matrices.size() > 0) {
+				sample.setMatrices(matrices);
+			}
 
 			SampleQuery sq = new SampleQuery();
 			int result = sq.insertExternalSample(authors, dataset, sample);
