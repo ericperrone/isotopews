@@ -135,7 +135,7 @@ public class Sample extends ResultBuilder {
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
 			ArrayList<MatrixBean> matrices = getMatrices((LinkedTreeMap) payload.get("data"));
 			if (matrices != null && matrices.size() > 0) {
-				sample.setMatrices(matrices);
+				sample.setMatrix(matrices.get(0));
 			}
 
 			SampleQuery sq = new SampleQuery();

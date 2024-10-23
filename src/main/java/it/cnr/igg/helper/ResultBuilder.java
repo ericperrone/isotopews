@@ -26,5 +26,11 @@ public class ResultBuilder {
 				.header("Access-Control-Allow-Headers", "*").header("Content-Type", "application/json; charset=UTF-8")
 				.build();
 	}
-
+	
+	public Integer toInteger(String s) {
+		Double f = Double.valueOf(s);
+		int ff = (int)f.doubleValue();
+		Integer n = Integer.valueOf(ff);
+		return n;
+	}
 }

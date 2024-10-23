@@ -92,6 +92,7 @@ public class Query extends ResultBuilder {
 		LinkedTreeMap keywords = (LinkedTreeMap) payload.get("keywords");
 		LinkedTreeMap reference = (LinkedTreeMap) payload.get("reference");
 		LinkedTreeMap year = (LinkedTreeMap) payload.get("year");
+		LinkedTreeMap matrix = (LinkedTreeMap) payload.get("matrix");
 
 		QueryFilter qfAuthors = addAuthors(authors);
 		if (qfAuthors != null)
@@ -112,7 +113,21 @@ public class Query extends ResultBuilder {
 		if (qfYear != null)
 			filters.add(qfYear);
 
+		QueryFilter qfMatrix = addMatrix(matrix);
+		if (qfMatrix != null)
+			filters.add(qfMatrix);
 		return filters;
+	}
+	
+	private QueryFilter addMatrix(LinkedTreeMap matrix) throws DbException {
+		if (matrix == null) {
+			return null;
+		}
+		QueryFilter filter = new QueryFilter();
+		String operator = (String) matrix.get("operator");
+		Integer matrixId = toInteger("" + (((LinkedTreeMap)matrix.get("matrix")).get("nodeId")));
+		filter.setMatrixId(operator, matrixId);
+		return filter;
 	}
 	
 	private QueryFilter addYear(LinkedTreeMap year) throws DbException {
