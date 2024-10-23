@@ -32,10 +32,101 @@ public class Matrix extends ResultBuilder {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getMatricesOpt(@QueryParam("ids") String ids) {
+	public Response getMatrices(@QueryParam("ids") String ids) {
 		try {
 			MatrixQuery query = new MatrixQuery();
 			ArrayList<MatrixBean> beans = query.getAll();
+
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
+	@Path("/matrix/roots")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getRoots() {
+		try {
+			MatrixQuery query = new MatrixQuery();
+			ArrayList<MatrixBean> beans = query.getRoots();
+
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
+	@Path("/matrix/children")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getChildren(@QueryParam("nodeid") String nodeid) {
+		try {
+			MatrixQuery query = new MatrixQuery();
+			ArrayList<MatrixBean> beans = query.getChildren(Integer.valueOf(nodeid));
+
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
+	@Path("/matrix/node")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getParent(@QueryParam("nodeid") String nodeid) {
+		try {
+			MatrixQuery query = new MatrixQuery();
+			MatrixBean bean = query.getNode(Integer.valueOf(nodeid));
+
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(bean);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
+	
+	@Path("/matrix/ancestor")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAncestor(@QueryParam("nodeid") String nodeid) {
+		try {
+			MatrixQuery query = new MatrixQuery();
+			ArrayList<MatrixBean> beans = query.getAncestor(Integer.valueOf(nodeid));
+
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(beans);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
+	@Path("/matrix/tree")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getTree(@QueryParam("nodeid") String nodeid) {
+		try {
+			MatrixQuery query = new MatrixQuery();
+			ArrayList<MatrixBean> beans = query.getTree(Integer.valueOf(nodeid));
 
 			String json = "";
 			Gson gson = new Gson();
