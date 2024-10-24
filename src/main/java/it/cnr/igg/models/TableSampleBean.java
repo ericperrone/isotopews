@@ -63,7 +63,10 @@ public class TableSampleBean {
 			if (components != null) {
 				for (ComponentBean c : components) {
 					TableItem item = index.get(c.getComponent());
-					row.set(item.headerColumn, "" + c.getValue());
+					String value = "" + c.getValue();
+					if (c.getUm() != null)
+						value += " [" + c.getUm() + "]";
+					row.set(item.headerColumn, value);
 				}
 			}
 			body.add(row);
