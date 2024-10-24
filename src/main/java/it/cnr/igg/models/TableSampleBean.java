@@ -70,9 +70,69 @@ public class TableSampleBean {
 		}
 	}
 	
+	private void organizeFields(SampleBean bean) {
+		List<SampleFieldBean> fields = bean.getFields();
+		ArrayList<SampleFieldBean> sfb = new ArrayList<SampleFieldBean>();
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("itineris_id")) {
+				sfb.add(f);
+				break;
+			}
+		}
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("latitude")) {
+				sfb.add(f);
+				break;
+			}
+		}
+		
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("longitude")) {
+				sfb.add(f);
+				break;
+			}
+		}
+		
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("matrix")) {
+				sfb.add(f);
+				break;
+			}
+		}
+		
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("sample name")) {
+				sfb.add(f);
+				break;
+			}
+		}
+		
+		for (SampleFieldBean f : fields) {
+			if (f.getFieldName().equalsIgnoreCase("itineris_id")) {
+				continue;
+			}
+			if (f.getFieldName().equalsIgnoreCase("latitude")) {
+				continue;
+			}
+			if (f.getFieldName().equalsIgnoreCase("longitude")) {
+				continue;
+			}
+			if (f.getFieldName().equalsIgnoreCase("matrix")) {
+				continue;
+			}
+			if (f.getFieldName().equalsIgnoreCase("sample name")) {
+				continue;
+			}
+			sfb.add(f);
+		}
+		
+		bean.setFields(sfb);
+	}
+	
 	private void buildHeader(List<SampleBean> beans, boolean typeFlag) {
 		int position = 0;
 		for (SampleBean s : beans) {
+			organizeFields(s);
 			List<SampleFieldBean> fields = s.getFields();
 			if (fields != null) {
 				for (SampleFieldBean f : fields) {
