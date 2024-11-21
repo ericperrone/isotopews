@@ -156,7 +156,7 @@ public class ContentDir extends ResultBuilder {
 		Gson gson = new Gson();
 		DatasetBean sb = new DatasetBean();
 		sb.setFileName(fileName);
-		sb.setMetadata(keywords);
+		sb.setKeywords(keywords);
 		sb.setLink(ref);
 		sb.setAuthors(authors);
 		sb.setYear(Integer.valueOf(year));

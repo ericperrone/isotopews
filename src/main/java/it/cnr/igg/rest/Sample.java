@@ -252,7 +252,7 @@ public class Sample extends ResultBuilder {
 		bean.setAuthors(dataset.get("authors") != null ? "" + dataset.get("authors") : null);
 		bean.setFileName(dataset.get("fileName") != null ? "" + dataset.get("fileName") : null);
 		bean.setYear(dataset.get("year") != null ? Double.valueOf("" + dataset.get("year")).intValue() : null);
-		bean.setMetadata(dataset.get("metadata") != null ? "" + dataset.get("metadata") : null);
+		bean.setKeywords(dataset.get("keywords") != null ? "" + dataset.get("keywords") : null);
 		bean.setProcessed(true);
 		return bean;
 	}
