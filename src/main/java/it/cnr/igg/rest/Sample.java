@@ -134,6 +134,7 @@ public class Sample extends ResultBuilder {
 			DatasetBean dataset = getDatasetInfo((LinkedTreeMap) payload.get("data"));
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
 			ArrayList<MatrixBean> matrices = getMatrices((LinkedTreeMap) payload.get("data"));
+			
 			if (matrices != null && matrices.size() > 0) {
 				sample.setMatrix(matrices.get(0));
 			}
@@ -214,7 +215,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-
+	
 	private SampleBean getSample(LinkedTreeMap payload) {
 		SampleBean sb = new SampleBean();
 		LinkedTreeMap sample = (LinkedTreeMap) payload.get("sample");
@@ -253,6 +254,7 @@ public class Sample extends ResultBuilder {
 		bean.setFileName(dataset.get("fileName") != null ? "" + dataset.get("fileName") : null);
 		bean.setYear(dataset.get("year") != null ? Double.valueOf("" + dataset.get("year")).intValue() : null);
 		bean.setKeywords(dataset.get("keywords") != null ? "" + dataset.get("keywords") : null);
+		bean.setMetadata(dataset.get("metadata") != null ? "" + dataset.get("metadata") : null);
 		bean.setProcessed(true);
 		return bean;
 	}
