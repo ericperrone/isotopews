@@ -134,7 +134,7 @@ public class Sample extends ResultBuilder {
 			DatasetBean dataset = getDatasetInfo((LinkedTreeMap) payload.get("data"));
 			ArrayList<AuthorBean> authors = getAuthorList((LinkedTreeMap) payload.get("data"));
 			ArrayList<MatrixBean> matrices = getMatrices((LinkedTreeMap) payload.get("data"));
-			
+
 			if (matrices != null && matrices.size() > 0) {
 				sample.setMatrix(matrices.get(0));
 			}
@@ -201,7 +201,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	private ArrayList<MatrixBean> getMatrices(LinkedTreeMap payload) {
 		ArrayList<MatrixBean> beans = new ArrayList<MatrixBean>();
 		ArrayList<LinkedTreeMap> m = (ArrayList<LinkedTreeMap>) payload.get("matrix");
@@ -215,7 +215,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	private SampleBean getSample(LinkedTreeMap payload) {
 		SampleBean sb = new SampleBean();
 		LinkedTreeMap sample = (LinkedTreeMap) payload.get("sample");
@@ -237,7 +237,7 @@ public class Sample extends ResultBuilder {
 				try {
 					Double val = Double.parseDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String)um));
+					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um));
 				} catch (Exception x) {
 					// x.printStackTrace();
 				}
@@ -281,10 +281,14 @@ public class Sample extends ResultBuilder {
 				Object component = c.get("component");
 				Object value = c.get("value");
 				Object isotope = c.get("isIsotope");
+				Object um = c.get("um");
 				try {
 					Double val = toDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+					if (um == null)
+						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+					else 
+						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, "" + um));
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
@@ -293,16 +297,21 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	public Double toDouble(String value) {
-		int comma = value.lastIndexOf(',');
-		int point = value.lastIndexOf('.');
-		if (comma < point) {
-			value = value.replaceAll(",", "");
-		} else {
-			value = value.replace(",", ".");
+		try {
+			int comma = value.lastIndexOf(',');
+			int point = value.lastIndexOf('.');
+			if (comma < point) {
+				value = value.replaceAll(",", "");
+			} else {
+				value = value.replace(",", ".");
+			}
+			return Double.parseDouble(value);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0d;
 		}
-		return Double.parseDouble(value);
 	}
 //	
 //	public static void main(String[] args) {

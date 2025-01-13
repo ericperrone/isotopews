@@ -26,6 +26,7 @@ import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
+import it.cnr.igg.isotopedb.beans.AuthorBean;
 import it.cnr.igg.isotopedb.beans.DatasetBean;
 import it.cnr.igg.isotopedb.queries.DatasetQuery;
 import it.cnr.igg.sheetx.csv.Csv;
@@ -81,7 +82,7 @@ public class ContentDir extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
-	
+
 	@Path("/delete-dataset/{id}")
 	@OPTIONS
 	@Produces(MediaType.APPLICATION_JSON)
@@ -89,7 +90,6 @@ public class ContentDir extends ResultBuilder {
 		return ok();
 	}
 
-	
 	@Path("/delete-dataset/{id}")
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -104,7 +104,7 @@ public class ContentDir extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
-	
+
 	@Path("/close-dataset")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class ContentDir extends ResultBuilder {
 	public Response closeDatasetOpt() {
 		return ok();
 	}
-	
+
 	@Path("/close-dataset")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -131,8 +131,8 @@ public class ContentDir extends ResultBuilder {
 			final String data = buffer.toString();
 
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
-			LinkedTreeMap ltm =  (LinkedTreeMap) payload.get("dataset");
-			Double id = (Double)ltm.get("id");
+			LinkedTreeMap ltm = (LinkedTreeMap) payload.get("dataset");
+			Double id = (Double) ltm.get("id");
 			DatasetBean bean = new DatasetBean();
 			bean.setId(Math.round(id));
 			bean.setProcessed(true);
@@ -146,8 +146,9 @@ public class ContentDir extends ResultBuilder {
 	}
 
 	private DatasetBean toDataseteBean(LinkedTreeMap payload) {
-		// ArrayList<LinkedTreeMap> dataset = (ArrayList<LinkedTreeMap>) payload.get("dataset");
-		LinkedTreeMap ltm =  (LinkedTreeMap) payload.get("dataset");
+		// ArrayList<LinkedTreeMap> dataset = (ArrayList<LinkedTreeMap>)
+		// payload.get("dataset");
+		LinkedTreeMap ltm = (LinkedTreeMap) payload.get("dataset");
 		String ref = (String) ltm.get("ref");
 		String authors = (String) ltm.get("authors");
 		String fileName = (String) ltm.get("file");
@@ -172,14 +173,14 @@ public class ContentDir extends ResultBuilder {
 			DatasetBean filter = new DatasetBean();
 			String json = "";
 			Gson gson = new Gson();
-			ArrayList<DatasetBean> list = (new DatasetQuery()).getDatasets(filter, true);			
+			ArrayList<DatasetBean> list = (new DatasetQuery()).getDatasets(filter, true);
 			json = gson.toJson(list);
 			return ok(json);
 		} catch (Exception x) {
 			return error(x.getMessage());
 		}
 	}
-	
+
 	@Path("/get-years")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -211,7 +212,7 @@ public class ContentDir extends ResultBuilder {
 			return error(x.getMessage());
 		}
 	}
-	
+
 	@Path("/contentdir")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -260,20 +261,20 @@ public class ContentDir extends ResultBuilder {
 		}
 	}
 
-	
 	@Path("/set-separator")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getContentWithSeparator(@QueryParam("fileName") String fileName, @QueryParam("separator") String separator) {
+	public Response getContentWithSeparator(@QueryParam("fileName") String fileName,
+			@QueryParam("separator") String separator) {
 		char recordSeparator;
 		if (separator.toLowerCase().equals("tab"))
 			recordSeparator = '\t';
-		else 
+		else
 			recordSeparator = separator.charAt(0);
 		Csv csv = new Csv(Global.dataFolder + Global.fileSeparator + fileName, recordSeparator);
 		return getContentCsv(csv);
 	}
-	
+
 	@Path("/get-content-csv")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -281,7 +282,7 @@ public class ContentDir extends ResultBuilder {
 		Csv csv = new Csv(Global.dataFolder + Global.fileSeparator + fileName);
 		return getContentCsv(csv);
 	}
-	
+
 	private Response getContentCsv(Csv csv) {
 		ArrayList<ArrayList<String>> content = null;
 		try {
@@ -308,6 +309,10 @@ public class ContentDir extends ResultBuilder {
 				else
 					content = ((Xsl) sheetx).getContent(sheet);
 				boolean itineris = Commons.checkItinerisTemplate(content.get(0));
+				if (true == itineris) {
+					String doi = Commons.getDoi(content);
+					ArrayList<AuthorBean> authors = Commons.getAuthors(content);
+				}
 				String json = "";
 				Gson gson = new Gson();
 				json = gson.toJson(content);
