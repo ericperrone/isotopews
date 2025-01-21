@@ -293,12 +293,30 @@ public class Sample extends ResultBuilder {
 					x.printStackTrace();
 				}
 			}
+			checkBean(sb, i);
 			beans.add(sb);
 		}
 		return beans;
 	}
+	
+	private void checkBean(SampleBean sb, Integer i) {
+		ArrayList<SampleFieldBean> fields = (ArrayList<SampleFieldBean>) sb.getFields();
+		for (SampleFieldBean f : fields) {
+			String name = f.getFieldName().toLowerCase();
+			if (name.indexOf("sample") >= 0 && name.indexOf("name") > 0) {
+				String value = f.getFieldValue();
+				if (value == null || value.length() == 0) {
+					String sampleName = "Autogen-" + i + "-" + (System.currentTimeMillis());
+					f.setFieldValue(sampleName);
+					return;
+				}
+			}
+		}
+	}
 
 	public Double toDouble(String value) {
+		if (value == null || value.length() <= 0)
+			return 0d;
 		try {
 			int comma = value.lastIndexOf(',');
 			int point = value.lastIndexOf('.');
