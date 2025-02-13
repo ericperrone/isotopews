@@ -28,6 +28,8 @@ import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
 import it.cnr.igg.isotopedb.beans.DatasetBean;
+import it.cnr.igg.isotopedb.beans.DatasetFullLinkBean;
+import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.queries.DatasetQuery;
 import it.cnr.igg.sheetx.csv.Csv;
 import it.cnr.igg.sheetx.xlsx.Sheetx;
@@ -47,6 +49,29 @@ class MetadataInfo {
 public class ContentDir extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
+
+	@Path("/get-full-references")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getfullReferencesOpt() {
+		return ok();
+	}
+
+	@Path("/get-full-references")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getfullReferences() {
+		Gson gson = new Gson();
+		DatasetQuery datasetQuery = new DatasetQuery();
+		try {
+			ArrayList<DatasetFullLinkBean> beans = datasetQuery.getFullLinks();
+			return ok(gson.toJson(RestResult.resultOk(gson.toJson(beans), "")));
+		} catch (Exception e) {
+			return error(gson.toJson(RestResult.resultError("" + e.getMessage())));
+		}
+	}
 
 	@Path("/insert-dataset")
 	@OPTIONS
