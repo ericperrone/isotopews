@@ -68,11 +68,13 @@ public class Query extends ResultBuilder {
 			final String data = buffer.toString();
 			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
 			ArrayList<QueryFilter> filters = fromJson(payload);
+			// long ts = System.currentTimeMillis();
 			MainQuery mainQuery = new MainQuery();
 			ArrayList<SampleBean> beans = mainQuery.query(filters);
-
+			// System.out.println("Elapsed: " + (System.currentTimeMillis() - ts));
 			TableSampleBean tsb = new TableSampleBean();
 			tsb.build(beans, true);
+			// System.out.println("Elapsed: " + (System.currentTimeMillis() - ts));
 //			String json = "";
 //			json = gson.toJson(tsb.getBody());
 //			
