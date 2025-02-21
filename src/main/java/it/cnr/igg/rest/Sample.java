@@ -30,6 +30,7 @@ import it.cnr.igg.isotopedb.beans.SampleBean;
 import it.cnr.igg.isotopedb.beans.SampleFieldBean;
 import it.cnr.igg.isotopedb.queries.SampleQuery;
 import it.cnr.igg.isotopedb.queries.AdministratorQuery;
+import it.cnr.igg.isotopedb.queries.DatasetQuery;
 import it.cnr.igg.isotopedb.queries.MatrixQuery;
 
 class ExternalSampleResult {
@@ -190,6 +191,27 @@ public class Sample extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
+	
+	@Path("/get-dataset-by-sample")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDatasetByIdOpt() {
+		return ok("");
+	}
+	
+	@Path("/get-dataset-by-sample")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDatasetById(@QueryParam("id") String id) {
+		Gson gson = new Gson();
+		try {
+			return ok(gson.toJson(RestResult.resultOk((new DatasetQuery()).getDatasetById(Long.parseLong(id.trim())), "")));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
 
 	private ArrayList<AuthorBean> getAuthorList(LinkedTreeMap payload) {
 		ArrayList<AuthorBean> beans = new ArrayList<AuthorBean>();
@@ -201,7 +223,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-
+	
 	private ArrayList<MatrixBean> getMatrices(LinkedTreeMap payload) {
 		ArrayList<MatrixBean> beans = new ArrayList<MatrixBean>();
 		ArrayList<LinkedTreeMap> m = (ArrayList<LinkedTreeMap>) payload.get("matrix");
