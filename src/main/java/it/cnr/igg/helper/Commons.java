@@ -7,10 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
 
 public class Commons {
+	public static final String ITINERIS_KEY = "IT_KEY";
 	public static final String KEY = "token";
 	public static final String ITINERIS_DOC = "itineris document";
 
 	public Commons() {
+	}
+	
+	public static String getItinerisKeyFromHeader(HttpServletRequest request) throws Exception {
+		String key = request.getHeader(Commons.ITINERIS_KEY);
+		if (key == null)
+			throw new Exception("Missing authorization key");
+		return key;
 	}
 
 	public static String getKeyFromHeader(HttpServletRequest request) throws Exception {
