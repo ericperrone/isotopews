@@ -192,26 +192,26 @@ public class Sample extends ResultBuilder {
 		}
 	}
 	
-	@Path("/get-dataset-by-sample")
-	@OPTIONS
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDatasetByIdOpt() {
-		return ok("");
-	}
-	
-	@Path("/get-dataset-by-sample")
-	@GET
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getDatasetById(@QueryParam("id") String id) {
-		Gson gson = new Gson();
-		try {
-			return ok(gson.toJson(RestResult.resultOk((new DatasetQuery()).getDatasetById(Long.parseLong(id.trim())), "")));
-		} catch (Exception x) {
-			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
-		}
-	}
+//	@Path("/get-dataset-by-sample")
+//	@OPTIONS
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getDatasetByIdOpt() {
+//		return ok("");
+//	}
+//	
+//	@Path("/get-dataset-by-sample")
+//	@GET
+//	@Consumes(MediaType.APPLICATION_JSON)
+//	@Produces(MediaType.APPLICATION_JSON)
+//	public Response getDatasetById(@QueryParam("id") String id) {
+//		Gson gson = new Gson();
+//		try {
+//			return ok(gson.toJson(RestResult.resultOk((new DatasetQuery()).getDatasetById(Long.parseLong(id.trim())), "")));
+//		} catch (Exception x) {
+//			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+//		}
+//	}
 
 	private ArrayList<AuthorBean> getAuthorList(LinkedTreeMap payload) {
 		ArrayList<AuthorBean> beans = new ArrayList<AuthorBean>();

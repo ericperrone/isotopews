@@ -375,4 +375,29 @@ public class ContentDir extends ResultBuilder {
 		File f = new File(file);
 		f.delete();
 	}
+
+	@Path("/get-dataset-by-sample")
+	@OPTIONS
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDatasetBySampleOpt() {
+		return ok();
+	}
+
+	@Path("/get-dataset-by-sample")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getDatasetBySample(@QueryParam("id") String id) {
+		DatasetQuery dq = new DatasetQuery();
+		Long nid = Long.parseLong(id);
+		try {
+			DatasetBean bean = dq.getDatasetBySampleId(nid);
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(bean);
+			return ok(json);
+		} catch (Exception x) {
+			return error(x.getMessage());
+		}
+	}
+
 }
