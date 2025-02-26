@@ -20,32 +20,32 @@ import it.cnr.igg.helper.ItinerisResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.exceptions.NotAuthorizedException;
-import it.cnr.igg.isotopedb.queries.ItinerisMetadataByAuthorDb;
+import it.cnr.igg.isotopedb.queries.ItinerisSamplesByAuthorDb;
 import it.cnr.igg.itineris.NoKeyException;
 
 @Path("")
-public class ItinerisMetadataByAuthor extends ResultBuilder {
+public class ItinerisSamplesByAuthor extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 	
-	@Path("/get-metadata-by-author")
+	@Path("/get-samples-by-author")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getMetadataOpt() {
+	public Response getSamplesOpt() {
 		return ok();
 	}
 	
-	@Path("/get-metadata-by-author/{authorid}")
+	@Path("/get-samples-by-author/{authorid}")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getMetadata(@PathParam("authorid") String authorid) {
+	public Response getSamples(@PathParam("authorid") String authorid) {
 		Gson gson = new Gson();
 		try {
 			String key = Commons.getItinerisKeyFromHeader(request);
-			ItinerisMetadataByAuthorDb db = new ItinerisMetadataByAuthorDb(key);
-			ArrayList<String> list = db.getMetadata(Long.valueOf(authorid));
+			ItinerisSamplesByAuthorDb db = new ItinerisSamplesByAuthorDb(key);
+			ArrayList<Integer> list = db.getSamples(Long.valueOf(authorid));
 			return ok(gson.toJson(ItinerisResult.resultOk(list)));
 		} catch (NoKeyException nke) {
 			nke.printStackTrace();
@@ -61,4 +61,6 @@ public class ItinerisMetadataByAuthor extends ResultBuilder {
 			return error(ItinerisResult.resultError(e.getMessage()));
 		}
 	}
+	
+
 }
