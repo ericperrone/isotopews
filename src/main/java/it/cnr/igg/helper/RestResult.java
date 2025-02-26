@@ -25,6 +25,7 @@ public class RestResult {
 		RestResult rr = new RestResult("success", message);
 		return rr;
 	}
+	
 	public static RestResult resultError(String message) {
 		RestResult rr = new RestResult("error", message);
 		return rr;

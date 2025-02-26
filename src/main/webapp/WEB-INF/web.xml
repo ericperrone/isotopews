@@ -9,7 +9,7 @@
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
-			<param-value>it.cnr.igg.rest</param-value>
+			<param-value>it.cnr.igg.rest,it.cnr.igg.itineris</param-value>
 		</init-param>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
