@@ -19,6 +19,7 @@ import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.ItinerisResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.SampleDataBean;
+import it.cnr.igg.isotopedb.beans.FullSampleDataBean;
 import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.exceptions.NotAuthorizedException;
 import it.cnr.igg.isotopedb.queries.ItinerisSampleDataDb;
@@ -47,8 +48,8 @@ public class ItinerisSampleData extends ResultBuilder {
 		try {
 			String key = Commons.getItinerisKeyFromHeader(request);
 			ItinerisSampleDataDb db = new ItinerisSampleDataDb(key);
-			ArrayList<SampleDataBean> list = db.getSampleData(sampleid);
-			return ok(gson.toJson(ItinerisResult.resultOk(formatData(list))));
+			FullSampleDataBean bean = db.getSampleData(sampleid);
+			return ok(gson.toJson(ItinerisResult.resultOk(bean)));
 		} catch (NoKeyException nke) {
 			nke.printStackTrace();
 			return error(ItinerisResult.resultError(nke.getMessage()));
@@ -64,27 +65,27 @@ public class ItinerisSampleData extends ResultBuilder {
 		}
 	}
 
-	private ArrayList<SampleDataBean> formatData(ArrayList<SampleDataBean> list) {
-		ArrayList<SampleDataBean> list2 = new ArrayList<SampleDataBean>();
-		for (SampleDataBean sdb : list) {
-			String type = sdb.getType();
-
-			if (sdb.getName().equalsIgnoreCase("GEOROC_ID"))
-				continue;
-
-			switch (type) {
-			case "C":
-				sdb.setType("Chemical element");
-				break;
-			case "I":
-				sdb.setType("Isotope");
-				break;
-			case "F":
-				sdb.setType("Descriptor");
-				break;
-			}
-			list2.add(sdb);
-		}
-		return list2;
-	}
+//	private ArrayList<SampleDataBean> formatData(ArrayList<SampleDataBean> list) {
+//		ArrayList<SampleDataBean> list2 = new ArrayList<SampleDataBean>();
+//		for (SampleDataBean sdb : list) {
+//			String type = sdb.getType();
+//
+//			if (sdb.getName().equalsIgnoreCase("GEOROC_ID"))
+//				continue;
+//
+//			switch (type) {
+//			case "C":
+//				sdb.setType("Chemical element");
+//				break;
+//			case "I":
+//				sdb.setType("Isotope");
+//				break;
+//			case "F":
+//				sdb.setType("Descriptor");
+//				break;
+//			}
+//			list2.add(sdb);
+//		}
+//		return list2;
+//	}
 }
