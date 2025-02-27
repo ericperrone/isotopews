@@ -8,7 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -20,15 +20,16 @@ import it.cnr.igg.helper.ItinerisResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.exceptions.DbException;
 import it.cnr.igg.isotopedb.exceptions.NotAuthorizedException;
-import it.cnr.igg.isotopedb.queries.ItinerisSamplesByAuthorDb;
+import it.cnr.igg.isotopedb.queries.ItinerisSamplesByAreaDb;
+import it.cnr.igg.isotopedb.beans.GeoAreaBean;
 import it.cnr.igg.itineris.NoKeyException;
 
 @Path("")
-public class ItinerisSamplesByAuthor extends ResultBuilder {
+public class ItinerisSamplesByArea extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
 	
-	@Path("/get-samples-by-author")
+	@Path("/get-samples-by-area")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -36,16 +37,16 @@ public class ItinerisSamplesByAuthor extends ResultBuilder {
 		return ok();
 	}
 	
-	@Path("/get-samples-by-author/{authorid}")
+	@Path("/get-samples-by-area")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSamples(@PathParam("authorid") String authorid) {
+	public Response getSamples(@QueryParam("toplon") float toplon, @QueryParam("toplat") float toplat, @QueryParam("bottomlon") float bottomlon, @QueryParam("bottomlat") float bottomlat) {
 		Gson gson = new Gson();
 		try {
 			String key = Commons.getItinerisKeyFromHeader(request);
-			ItinerisSamplesByAuthorDb db = new ItinerisSamplesByAuthorDb(key);
-			ArrayList<Integer> list = db.getSamples(Long.valueOf(authorid));
+			ItinerisSamplesByAreaDb db = new ItinerisSamplesByAreaDb(key);
+			ArrayList<Integer> list = db.getSamples(new GeoAreaBean(toplat, toplon, bottomlat, bottomlon));
 			return ok(gson.toJson(ItinerisResult.resultOk(list)));
 		} catch (NoKeyException nke) {
 			nke.printStackTrace();
@@ -61,4 +62,5 @@ public class ItinerisSamplesByAuthor extends ResultBuilder {
 			return error(ItinerisResult.resultError(e.getMessage()));
 		}
 	}
+
 }
