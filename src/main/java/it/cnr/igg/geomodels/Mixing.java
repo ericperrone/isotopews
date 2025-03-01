@@ -440,14 +440,14 @@ public class Mixing {
 		GeoData[] gd = { geoData };
 		
 		Mixing mixing = new Mixing(gd);
-//		mixing.compute();
+		mixing.compute();
 		for (GeoData data : gd) {
 			mixing.setStep(data.getStep());
 		}
 //		ArrayList<ArrayList<BigDecimal>> result = mixing.fn2(3);
-		ArrayList<ArrayList<BigDecimal>> result = mixing.fn3();
-		mixing.printF(result);
-		System.out.println();
+//		ArrayList<ArrayList<BigDecimal>> result = mixing.fn3();
+//		mixing.printF(result);
+//		System.out.println();
 //		result = mixing.fn2(3);
 //		mixing.printF(result);
 //		for (int i = 0; i < result.size(); i++) {
