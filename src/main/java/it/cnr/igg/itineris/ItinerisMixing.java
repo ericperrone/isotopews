@@ -26,6 +26,8 @@ import it.cnr.igg.isotopedb.queries.ItinerisCommon;
 import it.cnr.igg.geomodels.Mixing;
 import it.cnr.igg.geomodels.GeoData;
 import it.cnr.igg.itineris.beans.ItinerisMixingInput;
+import it.cnr.igg.itineris.beans.ItinerisMixingOut;
+import it.cnr.igg.itineris.beans.ItinerisMixingOutBean;
 import it.cnr.igg.itineris.beans.ItinerisEndMember;
 
 @Path("")
@@ -78,21 +80,23 @@ public class ItinerisMixing extends ResultBuilder {
 			
 
 			mixing.compute();
-			Object out1 = mixing.getMixingOutput();
-//			
-//			g[0] = geos.get(1);
-//			mixing = new Mixing(g);
-//			
-//			mixing.compute();
-//			Object out2 = mixing.getMixingOutput();
+			ArrayList<ItinerisMixingOutBean> out1 = mixing.getMix();
 			
-			return ok("");
-			// GeoData[] geoData = jsonToGeoData(payload);
+			g[0] = geos.get(1);
+			if (step != null && step > 0d) {
+				g[0].setStep(step);
+			} else {
+				g[0].setStep(0.1d);
+			}
+			
+			mixing = new Mixing(g);
+			mixing.compute();
+			ArrayList<ItinerisMixingOutBean> out2 = mixing.getMix();
+			
+			ItinerisMixingOut imOut = new ItinerisMixingOut(out1, out2);
+			
+			return ok(gson.toJson(RestResult.resultOk(imOut, "Success")));
 
-//			Mixing mixing = new Mixing(geoData);
-//			mixing.compute();
-//			Object result = mixing.getMixingOutput();
-//			return ok(gson.toJson(result));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
@@ -105,7 +109,7 @@ public class ItinerisMixing extends ResultBuilder {
 			imi.setIncrement(increment);
 		ArrayList<LinkedTreeMap> m1 = (ArrayList<LinkedTreeMap>)payload.get("member1");
 		imi.setEndMember1(getEndMember(m1));
-		ArrayList<LinkedTreeMap> m2 = (ArrayList<LinkedTreeMap>)payload.get("member1");
+		ArrayList<LinkedTreeMap> m2 = (ArrayList<LinkedTreeMap>)payload.get("member2");
 		imi.setEndMember2(getEndMember(m2));
 		return imi;
 	}
@@ -127,18 +131,19 @@ public class ItinerisMixing extends ResultBuilder {
 		}
 		geoData.add(d);
 		
-//		ArrayList<ItinerisEndMember> m2 = imi.getEndMember2();
-//		d = new GeoData();
-//		d.setMembers(imi.getEndMember2().size());
-//		i = 0;
-//		for (ItinerisEndMember m : m2) {
-//			if (m.elementConcentration == null) {
-//				d.setMember(m.name, m.element, m.memberValue, i);
-//			} else {
-//				d.setMember(m.name, m.element, m.memberValue, m.elementConcentration, i);
-//			}
-//		}
-//		geoData.add(d);		
+		ArrayList<ItinerisEndMember> m2 = imi.getEndMember2();
+		d = new GeoData();
+		d.setMembers(imi.getEndMember2().size());
+		i = 0;
+		for (ItinerisEndMember m : m2) {
+			if (m.elementConcentration == null) {
+				d.setMember(m.name, m.element, m.memberValue, i);
+			} else {
+				d.setMember(m.name, m.element, m.memberValue, m.elementConcentration, i);
+			}
+			i++;
+		}
+		geoData.add(d);		
 		
 		return geoData;
 	}

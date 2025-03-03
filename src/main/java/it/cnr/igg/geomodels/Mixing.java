@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.logging.log4j.util.PropertySource.Comparator;
 
 import it.cnr.igg.helper.MathTools;
+import it.cnr.igg.itineris.beans.ItinerisMixingOutBean;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -38,6 +39,18 @@ public class Mixing {
 	private ArrayList<MixingResult> results = null;
 	private MixingOutput mixingOutput = new MixingOutput();
 
+	public ItinerisMixingOutBean map(MixingResult mr) {
+		ItinerisMixingOutBean imb = new ItinerisMixingOutBean();
+		imb.setMemberOneMember(mr.samples.get(0).member);
+		imb.setMemberTwoMember(mr.samples.get(1).member);
+		imb.setMemberOneElement(mr.samples.get(0).element);
+		imb.setMemberTwoElement(mr.samples.get(1).element);
+		imb.setMemberOneF(mr.samples.get(0).f);
+		imb.setMemberTwoF(mr.samples.get(1).f);
+		imb.mix = mr.mix;
+		return imb;
+	}
+	
 	public Mixing() {
 		this.data = null;
 	}
@@ -70,6 +83,13 @@ public class Mixing {
 
 	public MixingOutput getMixingOutput() {
 		return mixingOutput;
+	}
+	
+	public ArrayList<ItinerisMixingOutBean> getMix() {
+		ArrayList<ItinerisMixingOutBean> out = new ArrayList<ItinerisMixingOutBean>();
+		for (MixingResult r : mixingOutput.results)
+			out.add(map(r));
+		return out;
 	}
 
 	public PlottedResult getPlotted() throws Exception {
