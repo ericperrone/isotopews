@@ -267,7 +267,44 @@ public class Administrator extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
+	
+	@Path("/genkey")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response genKeyOpt() {
+		return ok("");
+	}	
 
+	@Path("/genkey")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)	
+	public Response generateKey() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			String partner = (String) payload.get("partner");
+			AdministratorQuery aq = new AdministratorQuery();
+			String key = aq.generateItinerisAccessKey(partner);
+			AccessKey ak = new AccessKey();
+			ak.status = "success";
+			ak.key = key;
+			return ok(gson.toJson(ak));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}	
+	
 	private AdministratorBean getAdministratorBean(LinkedTreeMap data) {
 		String account = "" + data.get("account");
 		String password = "" + data.get("password");
