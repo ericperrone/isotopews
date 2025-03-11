@@ -32,4 +32,28 @@ public class ItinerisTernaryInputBean {
 		c.element = element;
 		c.value = value;
 	}
+	
+	public String getElementA() {
+		return a.element;
+	}
+	
+	public ArrayList<Double> getValuesA() {
+		return a.value;
+	}
+
+	public String getElementB() {
+		return b.element;
+	}
+	
+	public ArrayList<Double> getValuesB() {
+		return b.value;
+	}
+
+	public String getElementC() {
+		return c.element;
+	}
+
+	public ArrayList<Double> getValuesC() {
+		return c.value;
+	}
 }
