@@ -179,6 +179,7 @@ public class ContentDir extends ResultBuilder {
 		String fileName = (String) ltm.get("file");
 		String year = (String) ltm.get("year");
 		String keywords = (String) ltm.get("keywords");
+		String metadata = (String) ltm.get("metadata");
 		Gson gson = new Gson();
 		DatasetBean sb = new DatasetBean();
 		sb.setFileName(fileName);
@@ -187,6 +188,7 @@ public class ContentDir extends ResultBuilder {
 		sb.setAuthors(authors);
 		sb.setYear(Integer.valueOf(year));
 		sb.setProcessed(false);
+		sb.setMetadata(metadata);
 		return sb;
 	}
 
