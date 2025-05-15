@@ -22,6 +22,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import it.cnr.igg.helper.Commons;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
+import it.cnr.igg.isotopedb.beans.AttributeBean;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
 import it.cnr.igg.isotopedb.beans.ComponentBean;
 import it.cnr.igg.isotopedb.beans.DatasetBean;
@@ -76,6 +77,31 @@ public class Sample extends ResultBuilder {
 		}
 	}
 
+	@Path("/query-sample-attribute")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySamplesAttributeOpt() {
+		return ok("");
+	}
+	
+	@Path("/query-sample-attribute")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response querySampleAttribute(@QueryParam("id") Long id, @QueryParam("name") String name) {
+		try {
+			SampleQuery sampleQuery = new SampleQuery();
+			AttributeBean bean = sampleQuery.getSampleAttribute(id, name);
+			String json = "";
+			Gson gson = new Gson();
+			json = gson.toJson(bean);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
 	@Path("/query-samples")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -256,10 +282,13 @@ public class Sample extends ResultBuilder {
 				Object value = c.get("value");
 				Object isotope = c.get("isIsotope");
 				Object um = c.get("um");
+				Object technique = c.get("technique");
+				Object uncertainty = c.get("uncertainty");
+				Object uncertaintyType = c.get("uncertaintyType");
 				try {
 					Double val = Double.parseDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um));
+					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um, (String)technique, (String) uncertainty, (String) uncertaintyType));
 				} catch (Exception x) {
 					// x.printStackTrace();
 				}
@@ -304,13 +333,26 @@ public class Sample extends ResultBuilder {
 				Object value = c.get("value");
 				Object isotope = c.get("isIsotope");
 				Object um = c.get("um");
+				Object technique = c.get("technique");
+				Object uncertainty = c.get("uncertainty");
+				Object uncertaintyType = c.get("uncertaintyType");
 				try {
 					Double val = toDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					if (um == null)
-						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
-					else 
-						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, "" + um));
+					ComponentBean cb = new ComponentBean((String) component, val, isIsotope);
+					if (um != null)
+						cb.setUm("" + um);
+					if (technique != null)
+						cb.setTechnique("" + technique);
+					if (uncertainty != null)
+						cb.setUncertainty("" + uncertainty);
+					if (uncertaintyType != null)
+						cb.setUncertaintyType("" + uncertaintyType);
+					sb.getComponents().add(cb);
+//					if (um == null)
+//						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
+//					else 
+//						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, "" + um));
 				} catch (Exception x) {
 					x.printStackTrace();
 				}
