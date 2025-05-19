@@ -42,4 +42,31 @@ public class MeasureUnit extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
+	
+	@Path("/get-uncertainty-type")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUTypeOpt() {
+		return ok("");
+	}
+	
+	@Path("/get-uncertainty-type")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getUType() {
+		try {
+			String json = "";
+			Gson gson = new Gson();
+			
+			MeasureUnitQuery muq = new MeasureUnitQuery();
+			ArrayList<String> types = muq.getUncertaintyTypes();
+			json = gson.toJson(types);
+			return ok(json);
+		} catch (Exception ex) {
+			return error(ex.getMessage());
+		}
+	}
+	
 }
