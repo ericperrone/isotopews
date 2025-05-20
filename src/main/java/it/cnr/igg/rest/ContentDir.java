@@ -1,10 +1,17 @@
 package it.cnr.igg.rest;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,6 +25,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -128,6 +136,44 @@ public class ContentDir extends ResultBuilder {
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
+	}
+
+	@Path("/get-file-link/{name}")
+	@OPTIONS
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getFileOpt(@PathParam("name") String name) {
+		return ok();
+	}
+
+	@Path("/get-file-link/{name}")
+	@GET
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	public Response getFile(@PathParam("name") String name) {
+
+		try {
+			String link = getFileLink(name);
+			File file = new File(link);
+			byte[] buffer = new byte[4096];
+			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(link));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		    int bytes = 0;
+		    while ((bytes = bis.read(buffer, 0, buffer.length)) > 0) {
+		        baos.write(buffer, 0, bytes);
+		    }
+		    baos.close();
+		    bis.close();
+			byte[] imageData = baos.toByteArray();
+
+			ResponseBuilder builder = Response.ok(imageData);
+			builder.header("Access-Control-Allow-Origin", "*");
+			builder.header("Content-Disposition", "attachment; filename=" + file.getName());
+
+			return builder.build();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+
 	}
 
 	@Path("/close-dataset")
@@ -376,6 +422,10 @@ public class ContentDir extends ResultBuilder {
 		String file = Global.dataFolder + Global.fileSeparator + fileName;
 		File f = new File(file);
 		f.delete();
+	}
+
+	private String getFileLink(String fileName) {
+		return Global.dataFolder + Global.fileSeparator + fileName;
 	}
 
 	@Path("/get-dataset-by-sample")
