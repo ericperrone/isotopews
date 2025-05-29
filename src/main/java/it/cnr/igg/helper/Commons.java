@@ -14,6 +14,15 @@ public class Commons {
 	public Commons() {
 	}
 	
+	public static Integer toInteger(String s) {
+		if ((s == null) || (s.length() == 0) || (s.equalsIgnoreCase("null")))
+			return null;
+		Double f = Double.valueOf(s);
+		int ff = (int)f.doubleValue();
+		Integer n = Integer.valueOf(ff);
+		return n;
+	}
+	
 	public static String getItinerisKeyFromHeader(HttpServletRequest request) throws Exception {
 		String key = request.getHeader(Commons.ITINERIS_KEY);
 		if (key == null)

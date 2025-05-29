@@ -18,6 +18,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -35,6 +36,7 @@ import it.cnr.igg.helper.Global;
 import it.cnr.igg.helper.RestResult;
 import it.cnr.igg.helper.ResultBuilder;
 import it.cnr.igg.isotopedb.beans.AuthorBean;
+import it.cnr.igg.isotopedb.beans.CacheBean;
 import it.cnr.igg.isotopedb.beans.DatasetBean;
 import it.cnr.igg.isotopedb.beans.DatasetFullLinkBean;
 import it.cnr.igg.isotopedb.exceptions.DbException;
@@ -57,6 +59,114 @@ class MetadataInfo {
 public class ContentDir extends ResultBuilder {
 	@Context
 	private HttpServletRequest request;
+
+	@Path("/getCache")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCacheOpt() {
+		return ok();
+	}
+
+	@Path("/getCache")
+	@GET
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getCache(@QueryParam("datasetid") String datasetid) {
+		Gson gson = new Gson();
+		Long id = Long.parseLong(datasetid);
+		DatasetQuery dq = new DatasetQuery();
+		try {
+			ArrayList<CacheBean> beans = dq.getCachedData(id);
+			return ok(gson.toJson(RestResult.resultOk(beans, "")));
+		} catch (Exception e) {
+			return error(gson.toJson(RestResult.resultError("" + e.getMessage())));
+		}
+	}
+
+	@Path("/deleteCache")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteCacheOpt() {
+		return ok();
+	}
+	
+	@Path("/deleteCache")
+	@DELETE
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteCache(@QueryParam("datasetid") String datasetid) {
+		Gson gson = new Gson();
+		try {
+			Long id = Long.parseLong(datasetid);
+			DatasetQuery dq = new DatasetQuery();
+			dq.deleteCachedData(id);
+			return ok(gson.toJson(RestResult.resultOk("Ok")));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
+	@Path("/pushCache")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response postCacheOpt() {
+		return ok();
+	}
+
+	@Path("/pushCache")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response postCache() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
+
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			ArrayList<CacheBean> beans = toCache(payload);
+			DatasetQuery dq = new DatasetQuery();
+			dq.insertCachedData(beans);
+	
+			return ok(gson.toJson(RestResult.resultOk("Ok")));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
+	private ArrayList<CacheBean> toCache(LinkedTreeMap payload) {
+		ArrayList<CacheBean> beans = new ArrayList<CacheBean>();
+		ArrayList<LinkedTreeMap> data = (ArrayList<LinkedTreeMap>) payload.get("cache");
+		for (int i = 0; i < data.size(); i++) {
+			LinkedTreeMap ltm = data.get(i);
+			CacheBean bean = new CacheBean();
+			String n = "" + ltm.get("datasetid");
+			n = n.substring(0, n.indexOf("."));
+			bean.datasetId = Long.valueOf(n);
+			bean.fieldName = (String) ltm.get("fieldname");
+			bean.fieldType = (String) ltm.get("fieldtype");
+			bean.um = (String) ltm.get("um");
+			bean.technique = (String) ltm.get("technique");	
+			Double err = ltm.get("error") != null ? (Double) ltm.get("error") : null;
+			if (err != null) {
+				bean.error = Float.valueOf("" + err);
+			} else 
+				bean.error = null;
+			bean.errorType = (String) ltm.get("errortype");
+			beans.add(bean);
+		}
+		return beans;
+	}
 
 	@Path("/get-full-references")
 	@OPTIONS
@@ -115,7 +225,42 @@ public class ContentDir extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
+	
+	@Path("/update-dataset")
+	@OPTIONS
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateDatasetOpt() {
+		return ok();
+	}
+	
+	@Path("/update-dataset")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateDataset() {
+		Gson gson = new Gson();
+		try {
+			final BufferedReader rd = new BufferedReader(new InputStreamReader(request.getInputStream(), "UTF-8"));
 
+			String line = null;
+			final StringBuffer buffer = new StringBuffer(2048);
+
+			while ((line = rd.readLine()) != null) {
+				buffer.append(line);
+			}
+			final String data = buffer.toString();
+
+			LinkedTreeMap payload = gson.fromJson(data, LinkedTreeMap.class);
+			DatasetBean bean = toDataseteBean(payload);
+			DatasetQuery datasetQuery = new DatasetQuery();
+			datasetQuery.updateDataset(bean);
+			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(bean))));
+		} catch (Exception x) {
+			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
+		}
+	}
+	
 	@Path("/delete-dataset/{id}")
 	@OPTIONS
 	@Produces(MediaType.APPLICATION_JSON)
@@ -130,6 +275,7 @@ public class ContentDir extends ResultBuilder {
 		Gson gson = new Gson();
 		try {
 			DatasetQuery datasetQuery = new DatasetQuery();
+			datasetQuery.deleteCachedData(Long.valueOf(id));
 			String fileName = datasetQuery.deleteDataset(Long.valueOf(id));
 			deleteFile(fileName);
 			return ok(gson.toJson(RestResult.resultOk("deleted")));
@@ -156,12 +302,12 @@ public class ContentDir extends ResultBuilder {
 			byte[] buffer = new byte[4096];
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(link));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		    int bytes = 0;
-		    while ((bytes = bis.read(buffer, 0, buffer.length)) > 0) {
-		        baos.write(buffer, 0, bytes);
-		    }
-		    baos.close();
-		    bis.close();
+			int bytes = 0;
+			while ((bytes = bis.read(buffer, 0, buffer.length)) > 0) {
+				baos.write(buffer, 0, bytes);
+			}
+			baos.close();
+			bis.close();
 			byte[] imageData = baos.toByteArray();
 
 			ResponseBuilder builder = Response.ok(imageData);
@@ -210,6 +356,7 @@ public class ContentDir extends ResultBuilder {
 			DatasetQuery datasetQuery = new DatasetQuery();
 			String fileName = datasetQuery.updateProcessed(bean);
 			deleteFile(fileName);
+			datasetQuery.deleteCachedData(bean.getId());
 			return ok(gson.toJson(RestResult.resultOk("" + gson.toJson(bean))));
 		} catch (Exception x) {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
@@ -223,7 +370,7 @@ public class ContentDir extends ResultBuilder {
 		String ref = (String) ltm.get("ref");
 		String authors = (String) ltm.get("authors");
 		String fileName = (String) ltm.get("file");
-		String year = (String) ltm.get("year");
+		String year = "" + Commons.toInteger("" + ltm.get("year"));
 		String keywords = (String) ltm.get("keywords");
 		String metadata = (String) ltm.get("metadata");
 		Gson gson = new Gson();
@@ -232,9 +379,16 @@ public class ContentDir extends ResultBuilder {
 		sb.setKeywords(keywords);
 		sb.setLink(ref);
 		sb.setAuthors(authors);
-		sb.setYear(Integer.valueOf(year));
+		// sb.setYear(Integer.valueOf(year));
+		sb.setYear(Commons.toInteger(year));
 		sb.setProcessed(false);
 		sb.setMetadata(metadata);
+		
+		if (ltm.get("id") != null) {
+			Integer id = Commons.toInteger("" + ltm.get("id"));
+			if (id > 0)
+				sb.setId(Long.valueOf(id));
+		}
 		return sb;
 	}
 
