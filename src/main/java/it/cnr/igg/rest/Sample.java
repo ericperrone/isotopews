@@ -84,7 +84,7 @@ public class Sample extends ResultBuilder {
 	public Response querySamplesAttributeOpt() {
 		return ok("");
 	}
-	
+
 	@Path("/query-sample-attribute")
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -101,7 +101,7 @@ public class Sample extends ResultBuilder {
 			return error(ex.getMessage());
 		}
 	}
-	
+
 	@Path("/query-samples")
 	@OPTIONS
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -217,7 +217,7 @@ public class Sample extends ResultBuilder {
 			return error(gson.toJson(RestResult.resultError("" + x.getMessage())));
 		}
 	}
-	
+
 //	@Path("/get-dataset-by-sample")
 //	@OPTIONS
 //	@Consumes(MediaType.APPLICATION_JSON)
@@ -249,7 +249,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	private ArrayList<MatrixBean> getMatrices(LinkedTreeMap payload) {
 		ArrayList<MatrixBean> beans = new ArrayList<MatrixBean>();
 		ArrayList<LinkedTreeMap> m = (ArrayList<LinkedTreeMap>) payload.get("matrix");
@@ -288,7 +288,8 @@ public class Sample extends ResultBuilder {
 				try {
 					Double val = Double.parseDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um, (String)technique, (String) uncertainty, (String) uncertaintyType));
+					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um,
+							(String) technique, (String) uncertainty, (String) uncertaintyType));
 				} catch (Exception x) {
 					// x.printStackTrace();
 				}
@@ -362,7 +363,7 @@ public class Sample extends ResultBuilder {
 		}
 		return beans;
 	}
-	
+
 	private void checkBean(SampleBean sb, Integer i) {
 		ArrayList<SampleFieldBean> fields = (ArrayList<SampleFieldBean>) sb.getFields();
 		for (SampleFieldBean f : fields) {
@@ -382,24 +383,35 @@ public class Sample extends ResultBuilder {
 		if (value == null || value.length() <= 0)
 			return 0d;
 		try {
-			int comma = value.lastIndexOf(',');
+			value = value.replaceAll("＋", "+");
+			value = value.replaceAll("[−–—]", "-");
+			value = value.replaceAll(",", ".");
 			int point = value.lastIndexOf('.');
-			if (comma < point) {
-				value = value.replaceAll(",", "");
-			} else {
-				value = value.replace(",", ".");
+			if (point > 0) {
+				String integerSide = value.substring(0, point);
+				String decimalSide = value.substring(point);
+				integerSide = integerSide.replaceAll("\\.", "");
+				value = integerSide + decimalSide;
 			}
+
 			return Double.parseDouble(value);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0d;
 		}
 	}
-//	
-//	public static void main(String[] args) {
-//		String val = "12001";
-//		Sample sample = new Sample();
-//		double dVal = sample.toDouble(val);
-//		System.out.println(dVal);
-//	}
+
+	public static void main(String[] args) {
+		String valOk = "-41.2";
+		String valWrong = "−42.1";
+		String valTest = "1,234,675.87";
+		Sample sample = new Sample();
+		double dVal = sample.toDouble(valOk);
+		System.out.println(dVal);
+		dVal = sample.toDouble(valWrong);
+		System.out.println(dVal);
+		dVal = sample.toDouble(valTest);
+		System.out.println(dVal);
+		System.out.println("1.234.675".replaceAll("\\.", ""));
+	}
 }
