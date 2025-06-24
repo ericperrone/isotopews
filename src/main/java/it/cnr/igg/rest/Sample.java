@@ -285,11 +285,13 @@ public class Sample extends ResultBuilder {
 				Object technique = c.get("technique");
 				Object uncertainty = c.get("uncertainty");
 				Object uncertaintyType = c.get("uncertaintyType");
+				Object refStd = c.get("refstd");
 				try {
 					Double val = Double.parseDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
-					sb.getComponents().add(new ComponentBean((String) component, val, isIsotope, (String) um,
-							(String) technique, (String) uncertainty, (String) uncertaintyType));
+					ComponentBean cb = new ComponentBean((String) component, val, isIsotope, (String) um,
+							(String) technique, (String) uncertainty, (String) uncertaintyType, (String) refStd);
+					sb.getComponents().add(cb);
 				} catch (Exception x) {
 					// x.printStackTrace();
 				}
@@ -337,6 +339,7 @@ public class Sample extends ResultBuilder {
 				Object technique = c.get("technique");
 				Object uncertainty = c.get("uncertainty");
 				Object uncertaintyType = c.get("uncertaintyType");
+				Object refstd = c.get("refstd");
 				try {
 					Double val = toDouble("" + value);
 					boolean isIsotope = (boolean) isotope;
@@ -349,6 +352,8 @@ public class Sample extends ResultBuilder {
 						cb.setUncertainty("" + uncertainty);
 					if (uncertaintyType != null)
 						cb.setUncertaintyType("" + uncertaintyType);
+					if (refstd != null)
+						cb.setRefstd("" + refstd);
 					sb.getComponents().add(cb);
 //					if (um == null)
 //						sb.getComponents().add(new ComponentBean((String) component, val, isIsotope));
@@ -396,7 +401,7 @@ public class Sample extends ResultBuilder {
 
 			return Double.parseDouble(value);
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			return 0d;
 		}
 	}
